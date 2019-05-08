@@ -12,8 +12,8 @@ import org.jgroups.ReceiverAdapter;
  */
 public class App extends ReceiverAdapter {
 
-    JChannel channel;
-    String username = "Jonathan";
+    private JChannel channel;
+    private String username = "Jonathan";
 
     private void start() throws Exception {
         channel = new JChannel();
@@ -25,7 +25,7 @@ public class App extends ReceiverAdapter {
 
     private void eventLoop() {
         Scanner keyboard = new Scanner(System.in);
-        String line = "";
+        String line;
 
         boolean loop = true;
         while( loop ) {
