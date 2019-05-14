@@ -7,7 +7,6 @@
             "label": "verify",
             "type": "shell",
             "command": "mvn -B verify",
-            "group": "build"
         },
         {
             "label": "test",
@@ -19,7 +18,8 @@
             "label": "build",
             "type": "shell",
             "command": "mvn package",
-            "problemMatcher": []
+            "problemMatcher": [],            
+            "group": "build"
         }
     ]
 }
