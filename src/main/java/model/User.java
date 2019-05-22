@@ -8,7 +8,7 @@ abstract class User {
         this.id = id;
         this.username = username;
         this.fullname = fullname;
-        this.password = password; // TODO Use Bcrypt algorithm for hashing
+        this.password = password; // TODO Usar algoritmo Bcrypt para hashing
         this.funds = 0;
     }
 
