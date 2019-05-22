@@ -22,6 +22,6 @@ Vendedores poderão __verificar seu histórico de vendas__ e __consultar seu sal
 
 ## Como utilizar
 
-Este projeto utiliza [_Maven_](https://maven.apache.org/install.html) para _build_ e execução. Você pode compilar o projeto em um arquivo JAR executando `mvn package`. As dependências do projeto estarão disponíveis em `./target/dependency/` após o _build_.
+Este projeto utiliza [_Maven_](https://maven.apache.org/install.html) para _build_ e execução. Você pode compilar o projeto em um arquivo JAR executando `mvn package` As dependências do projeto estarão disponíveis em `./target/dependency/` após o _build_.
 
-Você pode executar o projeto através do comando `mvn exec:java`, que irá executar a classe __core.App__.
+Você pode executar o projeto através do comando `mvn exec:java` que irá executar a classe __core.App__.
