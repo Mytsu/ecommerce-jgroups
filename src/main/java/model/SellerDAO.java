@@ -13,11 +13,11 @@ class SellerDAO implements Serializable {
         this.sellersList = new HashMap<String, Seller>();
     }
 
-    public void add_funds(double funds, Customer customer){
+    public void add_funds(double funds, Customer customer) {
         this.customersList.get(customer.id).add_funds(funds);
     }
 
-    public void add_seller(Seller seller){
+    public void add_seller(Seller seller) {
         this.sellersList.put(seller.id, seller);
     }
     

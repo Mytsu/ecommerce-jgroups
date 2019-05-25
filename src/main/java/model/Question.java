@@ -11,11 +11,11 @@ class Question implements Serializable {
     private String question;
     private HashMap<String, Answer> answers;
 
-    Question(String userId, String question){
+    Question(String id, String userId, String question) {
+        this.id = id;
         this.userId = userId;
         this.question = question;
         this.answers = new HashMap<String, Answer>();
-        this.id = "";
     }
 
     public void add_answer(Answer answer){

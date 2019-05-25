@@ -10,7 +10,7 @@ class Sell implements Serializable {
     private double price;
     private long quant;
 
-    Sell(String sellerId, String customerId, String productId, double price, long quant, String id){
+    Sell(String sellerId, String customerId, String productId, double price, long quant, String id) {
         this.id = id;
         this.sellerId = sellerId;
         this.customerId = customerId;
