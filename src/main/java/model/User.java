@@ -1,11 +1,15 @@
 package model;
 
+import java.util.ArrayList;
+
 abstract class User {
-	String id, username, fullname, password;
+    final String id;
+    String username, fullname, password;
+    ArrayList<Sell> sell;
     double funds;
 
-    User(String username, String fullname, String password) {
-        this.id = 0;
+    User(String id, String username, String fullname, String password) {
+        this.id = id;
         this.username = username;
         this.fullname = fullname;
         this.password = password; // TODO Usar algoritmo Bcrypt para hashing
@@ -21,7 +25,7 @@ abstract class User {
         return this.funds;
     }
 
-    public add_sell(Sell sell){
+    public void add_sell(Sell sell){
         this.sell.add(sell);
     }
 

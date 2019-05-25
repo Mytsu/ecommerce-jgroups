@@ -1,16 +1,19 @@
-package main.java.model;
+package model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 class Offer implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
+    final String id;
+    private String sellerId;
+    private double price;
+    private long amount;
 
-    Offer(String sellerLogin, String sellerName, float price, int quant){
-        this.sellerLogin = sellerLogin;
-        this.sellerName = sellerName;
+    Offer(String id, String sellerId, double price, long amount) {
+        this.id = id;
+        this.sellerId = sellerId;
         this.price = price;
-        this.quant = quant;
+        this.amount = amount;
     }
 }

@@ -1,20 +1,24 @@
-package main.java.model;
+package model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.HashMap;;
 
 class Question implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
+    final String id;
+    private String userId;
+    private String question;
+    private HashMap<String, Answer> answers;
 
-    Question(String userName, String question){
-        this.userName = userName;
+    Question(String userId, String question){
+        this.userId = userId;
         this.question = question;
-        this.answers = new ArrayList<Answer>();
-        this.id = 0;
+        this.answers = new HashMap<String, Answer>();
+        this.id = "";
     }
 
     public void add_answer(Answer answer){
-        this.answers.add(answer);
+        this.answers.put(answer.id, answer);
     }
 }

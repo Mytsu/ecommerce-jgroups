@@ -1,34 +1,31 @@
-package main.java.model;
+package model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 class Product implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
+    final String id;
+    private String name, description;
+    private HashMap<String, Question> questions;
+    private HashMap<String, Offer> offers;
+    private long count;
 
-    Product(String name, String description){
-        this.id = 0;
+    Product(String id, String name, String description){
+        this.id = id;
         this.name = name;
         this.description = description;
-        this.questions = new ArrayList<Question>();
-        this.offersList = new ArrayList<Offer>();
-        this.quantTotal = 0;
-        this.idCurrentQuestion = 0;
-        this.idCurrentOffer = 0;
+        this.questions = new HashMap<String, Question>();
+        this.offers = new HashMap<String, Offer>();
+        this.count = 0;
     }
 
-    public void add_offer(Offer offer){
-        offer.id = this.idCurrentOffer;
-        // offer.id = this.idCurrentOffer++; // OLHAR SE ESSA COISA FUNCIONA QUANDO TUDO PRONTO
-        this.idCurrentOffer++;
-        this.offersList.add(offer);
-        this.quantTotal += offer.quant;
+    public void add_offer(Offer offer) {
+        this.offers.put(offer.id, offer);
     }
 
-    public void add_question(Question question){
-        question.id = this.idCurrentQuestion;
-        this.idCurrentQuestion++;
-        this.questions.add(question);
+    public void add_question(Question question) {
+        this.questions.put(question.id, question);
     }
 }

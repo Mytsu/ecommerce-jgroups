@@ -1,15 +1,16 @@
 package model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 class Seller extends User implements Serializable {
 
     private static final long serialVersionUID = -585749592930578838L;
+    private HashMap<String, Product> products;
 
-    Seller(String username, String fullname, String password) {
-        super(username, fullname, password);
+    Seller(String id, String username, String fullname, String password) {
+        super(id, username, fullname, password);
         // funds remains as zero during creation
-        this.products = new ArrayList<Integer>();
+        this.products = new HashMap<String, Product>(); // 
     }
 }
