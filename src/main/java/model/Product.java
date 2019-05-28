@@ -21,6 +21,8 @@ class Product implements Serializable {
     }
 
     public void add_offer(Offer offer) {
+        // CRIAR SE JA EXISTE OFERTA
+        // ATUALIZAR PRECO E ADICIONAR A QUANTIDADE
         this.offers.put(offer.id, offer);
         this.count += offer.get_amount();
     }
@@ -37,6 +39,7 @@ class Product implements Serializable {
 
     public void deduce_amount(String seller, int amount){
         this.offers.get(seller).amount -= amount;
+        //FAZER RETIRADA DO VENDEDOR QUANDO O ESTOQUE DELE CHEGAR A 0
     }
 
     public boolean has_enougth(String seller, int amount){

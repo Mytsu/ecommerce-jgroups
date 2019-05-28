@@ -75,22 +75,23 @@ public class Vision {
             System.out.println("Senha: ");
             //Scanner
             System.out.println("Confirmar senha: ");
-            /*Scanner
+            //Scanner
+            
             if(nickname.equals("sair")){
                 break;
             }
-            userExist = control.checkUserCustomerAvailability(userNickname);
+            /*
+            userExist = control.add_customer(user_nickname, user_fullname, user_password);
             if(!password.equals(passwordConfirm)){
                 passwordMatch = false;
             }
             */
-        } while(userExist || !passwordMatch);
+        } while(userExist != 0 && !passwordMatch);
         
         /*
         if(nickname.equals("sair")){
             createAccount();
         }
-        model.createCustomerAccount(nickname, name, password); 
         */
     }
 
@@ -122,7 +123,7 @@ public class Vision {
                 passwordMatch = false;
             }
             */
-        } while(userExist || !passwordMatch);
+        } while(userExist != 0 && !passwordMatch);
 
         /*
         if(nickname.equals("sair")){

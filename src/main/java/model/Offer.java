@@ -18,4 +18,6 @@ class Offer implements Serializable {
     public long get_amount(){
         return this.amount;
     }
+
+    
 }

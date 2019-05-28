@@ -28,6 +28,16 @@ class Control implements Serializable {
         return 0
     }
 
+    public int login_customer(String customer, String password){
+        // Verifica se o cliente existe
+        if(!this.customers.exists(customer))
+            return -1;
+        if(this.customers.get(customer).password != password)
+            return -2.
+        
+        return 0;
+    }
+
     // Funcao feita para busca de produtos
     public ArrayList<Product> search_product(String string){
         
@@ -79,7 +89,6 @@ class Control implements Serializable {
 
         // Deduz a quantidade do produto X do vendedor Y
         this.products.get_product(product).deduce_amount(seller, amount);
-        Sell(String sellerId, String customerId, String productId, double price, long quant) 
         sell = Sell(seller, customer, product, price, amount);
         this.customers.get_customer(customer).add_sell(sell);
         this.sellers.get_seller(seller).add_sell(sell);
@@ -103,6 +112,16 @@ class Control implements Serializable {
         seller = Seller(id, fullname, password);
         this.sellers.add(seller);        
 
+        return 0;
+    }
+
+    public int login_seller(String seller, String password){
+        // Verifica se o cliente existe
+        if(!this.sellers.exists(seller))
+            return -1;
+        if(this.sellers.get(seller).password != password)
+            return -2.
+        
         return 0;
     }
 
