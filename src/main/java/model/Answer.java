@@ -2,7 +2,7 @@ package model;
 
 import java.io.Serializable;
 
-class Answer implements Serializable {
+public class Answer implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
     final String id;

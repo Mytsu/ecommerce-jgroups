@@ -10,6 +10,12 @@ public class Vision {
         menu();
     }
 
+    public Vision() {
+        System.out.println("=== Bem vindx ao SD e-Commerce ===");
+        accessSystem();
+        menu();
+    }
+
     private static void accessSystem(){
         String option = "1";
         do{
@@ -57,19 +63,19 @@ public class Vision {
     }
 
     private static void createCustomerAccount(){
-        Boolean userExist = false;
+        int userExist = 0;
         Boolean passwordMatch = true;
 
         do{
             if(!passwordMatch){
                 passwordConfirmErrorMessage();
             }
-            if(userExist){
+            if(userExist < 0) { // TODO colocar ID de erro
                 userAlreadyExistErrorMessage();
             }
             System.out.println("== CRIANDO CONTA DE CONSUMIDOR ==");
             System.out.println("Apelido: ");
-            //Scanner
+            String nickname = ""; // TODO Scanner
             System.out.println("Nome completo: ");
             //Scanner
             System.out.println("Senha: ");
@@ -96,14 +102,14 @@ public class Vision {
     }
 
     private static void createSellerAccount(){
-        Boolean userExist = false;
+        int userExist = 0;
         Boolean passwordMatch = true;
 
         do{
-            if(!passwordMatch){
+            if(!passwordMatch) {
                 passwordConfirmErrorMessage();
             }
-            if(userExist){
+            if(userExist < 0) { // TODO colocar ID de erro
                 userAlreadyExistErrorMessage();
             }
             System.out.println("=== CRIANDO CONTA DE VENDEDOR ===");

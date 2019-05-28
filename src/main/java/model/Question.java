@@ -3,7 +3,7 @@ package model;
 import java.io.Serializable;
 import java.util.HashMap;
 
-class Question implements Serializable {
+public class Question implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
     final String id;

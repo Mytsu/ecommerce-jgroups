@@ -3,13 +3,14 @@ package model;
 import java.io.Serializable;
 import java.util.HashMap;
 
-class CustomerDAO implements Serializable {
+public class CustomerDAO implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
     static double INITIALFUNDING = 1000.0;
-    private HashMap<String, Customer> customers;
+    public HashMap<String, Customer> customers;
+	public long num_customers;
 
-    CustomerDAO() {
+    public CustomerDAO() {
         this.customers = new HashMap<String, Customer>();
         this.num_customers = 0;
     }

@@ -3,12 +3,12 @@ package model;
 import java.io.Serializable;
 import java.util.HashMap;
 
-class SellerDAO implements Serializable {
+public class SellerDAO implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
     private HashMap<String, Seller> sellersList;
 
-    SellerDAO(){
+    public SellerDAO(){
         this.sellersList = new HashMap<String, Seller>();
     }
 

@@ -2,15 +2,15 @@ package model;
 
 import java.io.Serializable;
 
-class Offer implements Serializable {
+public class Offer implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
-    private String sellerId;
-    private double price;
-    private long amount;
+    public String id;
+    public double price;
+    public long amount;
 
-    Offer(String sellerId, double price, long amount) {
-        this.sellerId = sellerId;
+    public Offer(String id, double price, long amount) {
+        this.id = id;
         this.price = price;
         this.amount = amount;
     }

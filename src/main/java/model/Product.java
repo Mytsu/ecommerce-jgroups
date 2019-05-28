@@ -3,7 +3,7 @@ package model;
 import java.io.Serializable;
 import java.util.HashMap;
 
-class Product implements Serializable {
+public class Product implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
     final String id;
@@ -12,7 +12,7 @@ class Product implements Serializable {
     private HashMap<String, Offer> offers;
     private long count;
 
-    Product(String id, String description){
+    public Product(String id, String description) {
         this.id = id;
         this.description = description;
         this.questions = new HashMap<String, Question>();
@@ -33,21 +33,20 @@ class Product implements Serializable {
         // Falta criar o aumento de pergunta caso ja exista
     }
 
-    public void get_price(String seller){
-        this.offers.get(seller).price;
+    public double get_price(String seller) {
+        return this.offers.get(seller).price;
     }
 
-    public void deduce_amount(String seller, int amount){
+    public void deduce_amount(String seller, int amount) {
         this.offers.get(seller).amount -= amount;
         //FAZER RETIRADA DO VENDEDOR QUANDO O ESTOQUE DELE CHEGAR A 0
     }
 
-    public boolean has_enougth(String seller, int amount){
-        if(this.offers.get(seller).get_amount() >= amount)
-            return true
-        return false
+    public boolean has_enougth(String seller, int amount) {
+        if(this.offers.get(seller).get_amount() >= amount) {
+            return true;
+        }
+        return false;
     }
-
-    public
 
 }

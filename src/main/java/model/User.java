@@ -2,11 +2,11 @@ package model;
 
 import java.util.ArrayList;
 
-abstract class User {
-    final String id;
-    String username, fullname, password;
-    ArrayList<Sell> sell;
-    double funds;
+public class User {
+    public final String id;
+    public String username, fullname, password;
+    public ArrayList<Sell> sell;
+    public double funds;
 
     User(String id, String fullname, String password) {
         this.id = id;
