@@ -24,6 +24,10 @@ class SellerDAO implements Serializable {
         return this.sellersList.get(seller);
     }
 
+    public HashMap<String, Seller> get_sellers(){
+        return sellersList;
+    }
+
     public boolean exists(String seller){
         if(this.sellersList.containsKey(seller))
             return true;

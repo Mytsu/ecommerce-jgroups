@@ -21,9 +21,8 @@ class Product implements Serializable {
     }
 
     public void add_offer(Offer offer) {
-        // Adicionar uma nova oferta
         this.offers.put(offer.id, offer);
-        // Falta criar o aumento de estoque para um vendedor ja existente
+        this.count += offer.get_amount();
     }
 
     public void add_question(Question question) {
@@ -41,7 +40,7 @@ class Product implements Serializable {
     }
 
     public boolean has_enougth(String seller, int amount){
-        if(this.offers.get(seller).amount >= amount)
+        if(this.offers.get(seller).get_amount() >= amount)
             return true
         return false
     }

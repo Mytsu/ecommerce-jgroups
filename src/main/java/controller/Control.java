@@ -16,18 +16,31 @@ class Control implements Serializable {
     }
     
     // Function to add a customer
-    public void add_customer(String id, String fullname, String password){
+    public int add_customer(String id, String fullname, String password){
+
+        // Verifica se o cliente existe
+        if(this.customers.exists(customer))
+            return -1;
+    
         customer = Customer(id, fullname, password);
-        //customer.id = this.idCurrentCustomer;
         customer.funds = INITIALFUNDING;
-        TOTALFUNDINGINSYSTEM += INITIALFUNDING;
         this.customers.add(customer);        
+        return 0
     }
 
-    //
-    public ArrayList<String> search_product(String string){
+    // Funcao feita para busca de produtos
+    public ArrayList<Product> search_product(String string){
         
+        lista = new ArrayList<Product>();
 
+        for (Entry<String, Product> entry : this.products.get_products().entrySet()) {
+            String key = entry.getKey();
+            if(key.contains(string)){
+                Product prod = entry.getValue();
+                lista.add(prod);
+            }
+        }
+        return lista;
     }
 
     public int purchase(String client, String seller, String product, int amount){
@@ -59,7 +72,6 @@ class Control implements Serializable {
         if(! (price > this.customers.get_customer(client).get_founds()))
             return -6;
 
-
         // Incrementa o valor nos fundos do vendedor
         this.sellers.add_funds(price*amount, this.sellers.get_seller(seller));   
         // Deduz o valor nos fundos do cliente
@@ -75,18 +87,75 @@ class Control implements Serializable {
         return 0;      
     }
 
-
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////
+    //                                 Parte dos vendedores                                //
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////
 
     // Function to add a seller
-    public void add_seller(String id, String fullname, String password){
+    public int add_seller(String id, String fullname, String password){
+        
+        // Verifica se o vendedor existe
+        if(this.sellers.exists(id))
+            return -1;
+        
         seller = Seller(id, fullname, password);
-        //seller.id = this.idCurrentSeller;
         this.sellers.add(seller);        
+
+        return 0;
     }
 
-    public void add_funds(double funds, int indexCustomer){
-        this.customersList.get(indexCustomer).add_funds(funds);
+    public int add_product(String idSeller, String product, Float price, long amount, String description){
+        //Checa se a quantidade e maior que 0
+        if(amount <= 0)
+            return -1
+
+        //Checa se o preco e maior que 0
+        if(price <= 0)
+            return -2
+
+        // Verifica se o vendedor existe
+        if(!this.sellers.exists(idSeller))
+            return -3;
+
+        // Verifica se o produto nao esta no hashmap
+        if(!this.products.exists(product))
+            products.add_product(new Produto(product, description));
+
+        //Decidir se vai incrementar caso o produto e o vendedor ja exista
+        //Ou se simplesmente vai criar uma nova oferta
+        products.get_product(product).add_offer(new Offer(idSeller, price, amount));
+
+        return 0
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////
+    //                                 Parte do sistema                                    //
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////
+
+    public double get_total_founds(){
+        
+        soma = 0.0;
+        for (Entry<String, Customer> entry : this.customers.get_customers.entrySet()) {
+            Customer custom = entry.getValue();
+            soma += custom.get_founds();
+        }
+        
+        for (Entry<String, Customer> entry : this.sellers.get_sellers.entrySet()) {
+            Customer seller = entry.getValue();
+            soma += seller.get_founds();
+        }
+
+        return soma;
+    }
+
+    public boolean is_founds_right(){
+        if( this.customers.num_customers*1000 == this.get_total_founds())
+            return true;
+        return false;
+    }
 
 }
