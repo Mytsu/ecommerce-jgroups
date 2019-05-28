@@ -8,9 +8,8 @@ abstract class User {
     ArrayList<Sell> sell;
     double funds;
 
-    User(String id, String username, String fullname, String password) {
+    User(String id, String fullname, String password) {
         this.id = id;
-        this.username = username;
         this.fullname = fullname;
         this.password = password; // TODO Usar algoritmo Bcrypt para hashing
         this.funds = 0;
@@ -32,9 +31,8 @@ abstract class User {
     @Override
     public String toString() {
         return "[USER]: "
-            + this.id 
             + "\nUsername: " 
-            + this.username
+            + this.id 
             + "\nFull name: "
             + this.fullname
             + "\nFunds: "

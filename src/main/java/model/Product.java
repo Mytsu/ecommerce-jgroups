@@ -12,9 +12,8 @@ class Product implements Serializable {
     private HashMap<String, Offer> offers;
     private long count;
 
-    Product(String id, String name, String description){
+    Product(String id, String description){
         this.id = id;
-        this.name = name;
         this.description = description;
         this.questions = new HashMap<String, Question>();
         this.offers = new HashMap<String, Offer>();
@@ -22,10 +21,31 @@ class Product implements Serializable {
     }
 
     public void add_offer(Offer offer) {
+        // Adicionar uma nova oferta
         this.offers.put(offer.id, offer);
+        // Falta criar o aumento de estoque para um vendedor ja existente
     }
 
     public void add_question(Question question) {
+        // Adicionar uma nova pergunta
         this.questions.put(question.id, question);
+        // Falta criar o aumento de pergunta caso ja exista
     }
+
+    public void get_price(String seller){
+        this.offers.get(seller).price;
+    }
+
+    public void deduce_amount(String seller, int amount){
+        this.offers.get(seller).amount -= amount;
+    }
+
+    public boolean has_enougth(String seller, int amount){
+        if(this.offers.get(seller).amount >= amount)
+            return true
+        return false
+    }
+
+    public
+
 }

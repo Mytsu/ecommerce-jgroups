@@ -10,8 +10,7 @@ class Offer implements Serializable {
     private double price;
     private long amount;
 
-    Offer(String id, String sellerId, double price, long amount) {
-        this.id = id;
+    Offer(String sellerId, double price, long amount) {
         this.sellerId = sellerId;
         this.price = price;
         this.amount = amount;
