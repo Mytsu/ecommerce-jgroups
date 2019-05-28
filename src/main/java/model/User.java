@@ -8,7 +8,7 @@ public class User {
     public ArrayList<Sell> sell;
     public double funds;
 
-    User(String id, String fullname, String password) {
+    public User(String id, String fullname, String password) {
         this.id = id;
         this.fullname = fullname;
         this.password = password; // TODO Usar algoritmo Bcrypt para hashing

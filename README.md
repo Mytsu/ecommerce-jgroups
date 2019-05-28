@@ -1,6 +1,9 @@
 # Trabalho de Sistemas Distribuídos
 ##### Instituto Federal de Minas Gerais - Campus Formiga
-##### Jonathan Arantes
+##### Eduardo Miranda - 0026495
+##### Flávia Santos Ribeiro - 0022651
+##### Jonathan Arantes - 0021625
+##### Luís Fernando da Silva Corrêa - 0022644
 
 ___
 
