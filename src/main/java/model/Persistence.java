@@ -3,9 +3,7 @@ package model;
 import org.jgroups.JChannel;
 import org.jgroups.Receiver;
 
-import system.CustomerDAO;
-import system.ProductDAO;
-import system.SellerDAO;
+import system.*;
 
 public class Persistence {
 

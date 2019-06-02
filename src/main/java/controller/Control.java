@@ -4,14 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import org.jgroups.*;
-import system.Customer;
-import system.CustomerDAO;
-import system.Offer;
-import system.Product;
-import system.ProductDAO;
-import system.Sell;
-import system.Seller;
-import system.SellerDAO;
+import system.*;
+
 
 public class Control implements Serializable {
 
@@ -235,24 +229,33 @@ public class Control implements Serializable {
 		// DEBUG: neste exemplo, iremos apenas imprimir a mensagem que chegou
         System.out.println("" + msg.getSrc() + ": " + msg.getObject()+"(1)");
     }
+    
 
-    public Object handle(Message msg) throws Exception{ // responde requisições recebidas
+    // responde requisições recebidas
+    public Object handle(Comunication msg) throws Exception{
 
 	/*  No trabalho, vocês deverão verificar qual o tipo de mensagem requisitativa
 		chegou e tratá-la conforme o caso. DICA: o objeto colocado dentro da
 		Message poderia ser um registro contendo vários campos, para facilitar
 	*/
+    
+    	if(msg.channel == EnumChannel.VIEW_TO_CONTROL){
+    		
+    	}
+    
 
 	  //DEBUG: neste exemplo, a Message contém apenas uma String 
       // contendo uma pergunta qualquer. 
-      String pergunta = (String) msg.getObject();
-      System.out.println("RECEBI uma mensagem: " + pergunta+"\n");
+      //String pergunta = (String) msg.getObject();
+      //System.out.println("RECEBI uma mensagem: " + pergunta+"\n");
       //User usuario = new User("UserNameQQ1","NomeCompletoQQ1","PassWordQQ1",122.541);
-      if(pergunta.contains("concorda"))
-          return pergunta;
+      //if(pergunta.contains("concorda"))
+      //    return pergunta;
         //return "SIM (1)"; //resposta à requisição contida na mensagem
-      else
-        return " NÃO (1)";
+      //else
+      //  return " NÃO (1)";
+    	
+    	return 1;
     }
 
 }
