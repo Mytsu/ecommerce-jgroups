@@ -1,7 +1,7 @@
 package system;
 
 
-public enum EnumRequest {
+public enum EnumServices {
 
 	CREATE_CUSTOMER(1),
 	CREATE_SELLER(2),
@@ -23,7 +23,7 @@ public enum EnumRequest {
 	
 	
 	private final int value;
-	EnumRequest(int requestValue){
+	EnumServices(int requestValue){
 		value = requestValue;
 	}
 	
