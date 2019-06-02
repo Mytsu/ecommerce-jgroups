@@ -1,6 +1,12 @@
 package view;
 
 import java.util.Scanner;
+
+import org.jgroups.JChannel;
+import org.jgroups.Receiver;
+import org.jgroups.blocks.MessageDispatcher;
+import org.jgroups.blocks.RequestHandler;
+
 import model.*;
 import system.User;
 
@@ -9,6 +15,11 @@ public class View {
     private static Scanner selectOption;
     final static String EXIT_SYSTEM = "29";
     
+    public JChannel controlChannel;
+    public JChannel viewChannel;
+    public MessageDispatcher viewDispatcher;
+    public MessageDispatcher controlDispatcher;
+    
     public static void main(String[] args) {
         System.out.println("=== Bem vindx ao SD e-Commerce ===");
         accessSystem();
@@ -16,6 +27,19 @@ public class View {
     }
 
     public View() {
+    	try {
+			this.controlChannel = new JChannel("control.xml");
+			this.viewChannel = new JChannel("view.xml");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+    	this.viewDispatcher = new MessageDispatcher(this.viewChannel, null, null, (RequestHandler) this);
+    	this.controlDispatcher = new MessageDispatcher(this.viewChannel, null, null, (RequestHandler) this);
+    	
+        this.controlChannel.setReceiver((Receiver) this);
+        this.viewChannel.setReceiver((Receiver) this);
+    	
         accessSystem();
         //menu();
     }
@@ -23,6 +47,7 @@ public class View {
     private static void accessSystem() {
         String option = "1";
         String loop = "1";
+        
         do{
             loop = "1";
             clearScreen();

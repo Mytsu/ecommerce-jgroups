@@ -36,7 +36,6 @@ public class Control implements Serializable {
 			this.viewChannel = new JChannel("view.xml");
 			this.modelChannel = new JChannel("model.xml");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         
