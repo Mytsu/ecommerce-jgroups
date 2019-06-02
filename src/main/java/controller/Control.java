@@ -39,28 +39,27 @@ public class Control implements Serializable {
     }
     
     // Function to add a customer
-    public int add_customer(String id, String fullname, String password){
+    public boolean add_customer(String id, String fullname, String password){
 
         Customer customer = new Customer(id, fullname, password);
 
         // Verifica se o cliente existe
         if(this.customers.exists(id))
-            return -1;
+            return false;
     
-
         customer.funds = INITIALFUNDING;
         this.customers.add_customer(customer);        
-        return 0;
+        return true;
     }
 
-    public int login_customer(String customer, String password){
+    public boolean login_customer(String customer, String password){
         // Verifica se o cliente existe
         if(!this.customers.exists(customer))
-            return -1;
+            return false;
         if(this.customers.get_customer(customer).password != password)
-            return -2;
+            return false;
         
-        return 0;
+        return true;
     }
 
     // Funcao feita para busca de produtos
@@ -134,29 +133,29 @@ public class Control implements Serializable {
     /////////////////////////////////////////////////////////////////////////////////////////
 
     // Function to add a seller
-    public int add_seller(String id, String fullname, String password) {
+    public boolean add_seller(String id, String fullname, String password) {
         
         // Verifica se o vendedor existe
         if(this.sellers.exists(id))
-            return -1;
+            return false;
         
         Seller seller = new Seller(id, fullname, password);
         this.sellers.add_seller(seller);
 
-        return 0;
+        return true;
     }
 
-    public int login_seller(String seller, String password) {
+    public boolean login_seller(String seller, String password) {
         // Verifica se o cliente existe
         if(!this.sellers.exists(seller)) {
-            return -1;
+            return false;
         }
 
         if(this.sellers.get_seller(seller).password != password) {
-            return -2;
+            return false;
         }
         
-        return 0;
+        return true;
     }
 
     public int add_product(String idSeller, String product, Float price, long amount, String description) {
@@ -238,8 +237,32 @@ public class Control implements Serializable {
 		chegou e tratá-la conforme o caso. DICA: o objeto colocado dentro da
 		Message poderia ser um registro contendo vários campos, para facilitar
 	*/
+    	
+    	Comunication response = new Comunication();
+    	
+    	ArrayList<Object> content = new ArrayList<Object>();
     
     	if(msg.channel == EnumChannel.VIEW_TO_CONTROL){
+    		
+    		if (msg.service == EnumServices.ADD_ITEM){
+    			// int add_product(String idSeller, String product, Float price, long amount, String description)
+    			int var = this.add_product((String)msg.content.get(0), (String)msg.content.get(1), (float)msg.content.get(2),
+    					(long)msg.content.get(3), (String)msg.content.get(4));
+    			content.add(var);
+    			response.service = EnumServices.ADD_ITEM;
+    		}
+    		
+    		else if (msg.service == EnumServices.BUY_ITEM){
+    			// int purchase(String customer, String seller, String product, int amount)
+    			
+    			int var = this.purchase((String)msg.content.get(0), (String)msg.content.get(1),
+    					(String)msg.content.get(2), (int)msg.content.get(3));
+    			content.add(var);
+    			response.service = EnumServices.BUY_ITEM;
+    		}
+    		
+    		response.channel = EnumChannel.CONTROL_TO_VIEW;
+    		response.content = content;
     		
     	}
     
@@ -255,7 +278,7 @@ public class Control implements Serializable {
       //else
       //  return " NÃO (1)";
     	
-    	return 1;
+    	return response;
     }
 
 }
