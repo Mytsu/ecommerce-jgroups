@@ -42,14 +42,14 @@ public class Persistence {
         }
         
 
-    /*
+    
     // responde requisições recebidas
     public Object handle(Comunication msg) throws Exception{
 
-
+    	
         	
         	Comunication response = new Comunication();
-        	
+        	/*	
         	ArrayList<Object> content = new ArrayList<Object>();
         
         	if(msg.channel == EnumChannel.VIEW_TO_CONTROL){
@@ -153,11 +153,12 @@ public class Persistence {
             //return "SIM (1)"; //resposta à requisição contida na mensagem
           //else
           //  return " NÃO (1)";
-        	
+        
+        */
         	return response;
         }
 
-		*/
+		
 
 
 }

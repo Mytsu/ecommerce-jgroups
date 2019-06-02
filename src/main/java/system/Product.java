@@ -6,11 +6,10 @@ import java.util.HashMap;
 public class Product implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
-    final String id;
-    private String name, description;
-    private HashMap<String, Question> questions;
-    private HashMap<String, Offer> offers;
-    private long count;
+    public String id, description;
+    public HashMap<String, Question> questions;
+    public HashMap<String, Offer> offers;
+    public long count;
 
     public Product(String id, String description) {
         this.id = id;
