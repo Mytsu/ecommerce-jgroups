@@ -3,24 +3,23 @@ package system;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import model.Answer;
-
 public class Question implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
-    final String id;
-    private String userId;
-    private String question;
+    public String id;
+    public String userId;
     private HashMap<String, Answer> answers;
 
-    Question(String id, String userId, String question) {
+    public Question(String id, String userId) {
         this.id = id;
         this.userId = userId;
-        this.question = question;
         this.answers = new HashMap<String, Answer>();
     }
 
     public void add_answer(Answer answer){
-        this.answers.put(answer.id, answer);
+    	if(this.answers.containsKey(answer.sellerId)) {
+    		this.answers.get(answer.sellerId).answer = answer.answer;
+    	}
+        this.answers.put(answer.sellerId, answer);
     }
 }

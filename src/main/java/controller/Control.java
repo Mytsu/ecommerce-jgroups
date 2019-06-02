@@ -37,6 +37,12 @@ public class Control implements Serializable {
         this.viewChannel.setReceiver((Receiver) this);
         this.modelChannel.setReceiver((Receiver) this);
     }
+  
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////
+    //                                 Parte dos clientes                                  //
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////
     
     // Function to add a customer
     public boolean add_customer(String id, String fullname, String password){
@@ -126,12 +132,36 @@ public class Control implements Serializable {
         return 0;
     }
 
+    public ArrayList<Product> list_products(){
+    	
+    	ArrayList<Product> lista = new ArrayList<Product>();
+        for (Entry<String, Product> entry : this.products.get_products().entrySet()) {
+        	lista.add(entry.getValue());
+        }
+        
+        return lista;  	
+    }
+    
+    public boolean sendQuestion(String customer, String product, String msg) {
+    	
+    	boolean retorno = false;
+    	
+    	if(products.exists(product)) {
+        	Question question = new Question(msg, customer);
+        	retorno = products.get_product(product).add_question(question);
+    	}
+    	
+    	return retorno;
+    }
+    
+       
     /////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
     //                                 Parte dos vendedores                                //
     /////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
 
+    
     // Function to add a seller
     public boolean add_seller(String id, String fullname, String password) {
         
@@ -185,6 +215,23 @@ public class Control implements Serializable {
         return 0;
     }
 
+    public boolean sendAnswer(String seller, String product, String question, String answer) {
+    	
+    	boolean retorno = false;
+    	
+    	if(!products.exists(product)) {
+    		return false;
+    	}
+    	
+    	Answer response = new Answer(seller, answer);
+    	
+    	if(products.get_product(product).add_answer(response)){
+    		return true;
+    	}
+    	
+    	return retorno;
+    }
+    
     /////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
     //                                 Parte do sistema                                    //
@@ -254,11 +301,77 @@ public class Control implements Serializable {
     		
     		else if (msg.service == EnumServices.BUY_ITEM){
     			// int purchase(String customer, String seller, String product, int amount)
-    			
     			int var = this.purchase((String)msg.content.get(0), (String)msg.content.get(1),
     					(String)msg.content.get(2), (int)msg.content.get(3));
     			content.add(var);
     			response.service = EnumServices.BUY_ITEM;
+    		}
+    		
+    		else if(msg.service == EnumServices.CREATE_CUSTOMER) {
+    			//boolean add_customer(String id, String fullname, String password)
+    			boolean var = this.add_customer((String)msg.content.get(0),(String)msg.content.get(1),
+    					(String)msg.content.get(2));
+    			content.add(var);
+    			response.service = EnumServices.CREATE_CUSTOMER;
+    		}
+    		
+    		else if(msg.service == EnumServices.CREATE_SELLER) {
+    			//boolean add_seller(String id, String fullname, String password)
+    			boolean var = this.add_seller((String)msg.content.get(0),(String)msg.content.get(1),
+    					(String)msg.content.get(2));
+    			content.add(var);
+    			response.service = EnumServices.CREATE_CUSTOMER;    			
+    		}
+    		
+    		else if(msg.service == EnumServices.LIST_ITENS) {
+    			//ArrayList<Product> list_products()
+    			ArrayList<Product> var = this.list_products();
+    			content.add(var);
+    			response.service = EnumServices.LIST_ITENS;
+    		}
+    		
+    		else if(msg.service == EnumServices.LOGIN_CUSTOMER) {
+    			//boolean login_customer(String customer, String password)
+    			boolean var = this.login_customer((String)msg.content.get(0),(String)msg.content.get(1));
+    			content.add(var);
+    			response.service = EnumServices.LOGIN_CUSTOMER;
+    		}
+    		
+    		else if(msg.service == EnumServices.LOGIN_SELLER) {
+    			//boolean login_seller(String seller, String password)
+    			boolean var = this.login_customer((String)msg.content.get(0),(String)msg.content.get(1));
+    			content.add(var);
+    			response.service = EnumServices.LOGIN_SELLER;    			
+    		}
+    		
+    		else if(msg.service == EnumServices.MAKE_QUESTION){
+    			//boolean sendQuestion(String customer, String product, String msg)
+    			boolean var = this.sendQuestion((String)msg.content.get(0), (String)msg.content.get(1),
+    					(String)msg.content.get(2));
+    			content.add(var);
+    			response.service = EnumServices.MAKE_QUESTION;
+    		}
+    		
+    		else if(msg.service == EnumServices.SEARCH_ITEM) {
+    			//ArrayList<Product> search_product(String string)
+    			ArrayList<Product> var = this.search_product((String)msg.content.get(0));
+    			content.add(var);
+    			response.service = EnumServices.SEARCH_ITEM;
+    		}
+    		
+    		else if(msg.service == EnumServices.SEND_ANSWER) {
+    			//boolean sendAnswer(String seller, String product, String question, String answer)
+    			boolean var = this.sendAnswer((String)msg.content.get(0), (String)msg.content.get(1),
+    					(String)msg.content.get(2), (String)msg.content.get(3));
+    			content.add(var);
+    			response.service = EnumServices.SEND_ANSWER;
+    		}
+    		
+    		else if(msg.service == EnumServices.TOTAL_FUNDS_BOOL) {
+    			//boolean is_founds_right()
+    			boolean var = this.is_founds_right();
+    			content.add(var);
+    			response.service = EnumServices.TOTAL_FUNDS_BOOL;
     		}
     		
     		response.channel = EnumChannel.CONTROL_TO_VIEW;

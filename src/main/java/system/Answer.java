@@ -1,15 +1,13 @@
-package model;
+package system;
 
 import java.io.Serializable;
 
 public class Answer implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
-    public final String id;
-    private String sellerId, answer;
+    public String sellerId, answer;
 
-    Answer(String id, String sellerId, String answer) {
-        this.id = id;
+    public Answer(String sellerId, String answer) {
         this.sellerId = sellerId;
         this.answer = answer;
     }

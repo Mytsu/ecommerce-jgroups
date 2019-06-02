@@ -35,10 +35,24 @@ public class Product implements Serializable {
     	return ;        
     }
 
-    public void add_question(Question question) {
-        // Adicionar uma nova pergunta
-        this.questions.put(question.id, question);
+    public boolean add_question(Question question) {
+
+    	// Adicionar uma nova pergunta
+    	if(questions.containsKey(question.id)) {
+    		this.questions.put(question.id, question);
+    		return true;
+    	}
+    	// Caso a pergunta ja exista retorna-se falso
+    	return false;
+        
         // Falta criar o aumento de pergunta caso ja exista
+    }
+    
+    public boolean add_answer(Answer answer) {
+    	
+    	this.questions.get(answer.sellerId).add_answer(answer);
+    	
+    	return true;
     }
 
     public double get_price(String seller) {

@@ -18,7 +18,8 @@ public enum EnumServices {
 	GET_CUSTOMERS(12),
 	GET_SELLERS(13),	
 	
-	TOTAL_FUNDS(99)
+	TOTAL_FUNDS_BOOL(99),
+	TOTAL_FUNDS_INT(100)
 	;
 	
 	
