@@ -1,7 +1,9 @@
-package model;
+package system;
 
 import java.io.Serializable;
 import java.util.HashMap;
+
+import model.Answer;
 
 public class Question implements Serializable {
 

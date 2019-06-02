@@ -1,0 +1,39 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "windows": {
+        "options": {
+            "shell": {
+                "executable": "cmd.exe",
+                "args": ["/d", "/c"]
+            },
+        },
+    },
+    "tasks": [
+        {
+            "label": "verify",
+            "type": "shell",
+            "command": "mvn -B verify",
+        },
+        {
+            "label": "test",
+            "type": "shell",
+            "command": "mvn -B test",
+            "group": "test"
+        },
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "mvn package",
+            "problemMatcher": [],            
+            "group": "build"
+        },
+        {
+            "label": "exec",
+            "type": "shell",
+            "command": "mvn exec:java",
+            "problemMatcher": []
+        }
+    ]
+}

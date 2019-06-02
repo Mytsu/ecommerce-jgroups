@@ -3,8 +3,15 @@ package controller;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map.Entry;
-
-import model.*;
+import org.jgroups.*;
+import system.Customer;
+import system.CustomerDAO;
+import system.Offer;
+import system.Product;
+import system.ProductDAO;
+import system.Sell;
+import system.Seller;
+import system.SellerDAO;
 
 public class Control implements Serializable {
 
@@ -15,11 +22,27 @@ public class Control implements Serializable {
     public CustomerDAO customers;
     public SellerDAO sellers;
     public ProductDAO products;
+    public JChannel controlChannel;
+    public JChannel viewChannel;
+    public JChannel modelChannel;
     
     Control(){
         this.customers = new CustomerDAO();
         this.sellers = new SellerDAO();
         this.products = new ProductDAO();
+        
+        try {
+			this.controlChannel = new JChannel("control.xml");
+			this.viewChannel = new JChannel("view.xml");
+			this.modelChannel = new JChannel("model.xml");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        this.controlChannel.setReceiver((Receiver) this);
+        this.viewChannel.setReceiver((Receiver) this);
+        this.modelChannel.setReceiver((Receiver) this);
     }
     
     // Function to add a customer
@@ -196,6 +219,41 @@ public class Control implements Serializable {
         if( this.customers.num_customers*1000 == this.get_total_founds())
             return true;
         return false;
+    }
+    
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////
+    //                                 Comunicacao                                         //
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////
+    
+    public void receive(Message msg) { //exibe mensagens recebidas
+	/*  No trabalho, vocês deverão verificar qual o tipo de mensagem informativa
+		chegou e tratá-la conforme o caso. DICA: o objeto colocado dentro da
+		Message poderia ser um registro contendo vários campos, para facilitar
+	*/
+
+		// DEBUG: neste exemplo, iremos apenas imprimir a mensagem que chegou
+        System.out.println("" + msg.getSrc() + ": " + msg.getObject()+"(1)");
+    }
+
+    public Object handle(Message msg) throws Exception{ // responde requisições recebidas
+
+	/*  No trabalho, vocês deverão verificar qual o tipo de mensagem requisitativa
+		chegou e tratá-la conforme o caso. DICA: o objeto colocado dentro da
+		Message poderia ser um registro contendo vários campos, para facilitar
+	*/
+
+	  //DEBUG: neste exemplo, a Message contém apenas uma String 
+      // contendo uma pergunta qualquer. 
+      String pergunta = (String) msg.getObject();
+      System.out.println("RECEBI uma mensagem: " + pergunta+"\n");
+      //User usuario = new User("UserNameQQ1","NomeCompletoQQ1","PassWordQQ1",122.541);
+      if(pergunta.contains("concorda"))
+          return pergunta;
+        //return "SIM (1)"; //resposta à requisição contida na mensagem
+      else
+        return " NÃO (1)";
     }
 
 }

@@ -1,9 +1,10 @@
-package vision;
+package view;
 
 import java.util.Scanner;
 import model.*;
+import system.User;
 
-public class Vision {
+public class View {
 
     private static Scanner selectOption;
     final static String EXIT_SYSTEM = "29";
@@ -14,7 +15,7 @@ public class Vision {
         menu();
     }
 
-    public Vision() {
+    public View() {
         accessSystem();
         //menu();
     }
