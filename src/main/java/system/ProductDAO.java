@@ -16,15 +16,15 @@ public class ProductDAO implements Serializable {
         this.products.put(product.id, product);        
     }
 
-    public Product get_product(String product){
+    public Product get_product(String product) {
         return this.products.get(product);
     }
 
-    public HashMap<String, Product> get_products(){
+    public HashMap<String, Product> get_products() {
         return this.products;
     }
 
-    public boolean exists(String product){
+    public boolean exists(String product) {
         if(this.products.containsKey(product))
             return true;
         return false;

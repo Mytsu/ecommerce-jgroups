@@ -1,12 +1,10 @@
 package view;
 
-//import java.io.FileReader;
 import java.util.ArrayList;
-//import java.util.Properties;
 import java.util.Scanner;
 import java.util.Map.Entry;
-
-import system.*;
+//import java.util.Properties;
+//import java.io.FileReader;
 
 import org.jgroups.Address;
 import org.jgroups.JChannel;
@@ -17,6 +15,13 @@ import org.jgroups.blocks.RequestHandler;
 import org.jgroups.blocks.RequestOptions;
 import org.jgroups.blocks.ResponseMode;
 import org.jgroups.util.RspList;
+
+import system.Comunication;
+import system.EnumChannel;
+import system.EnumServices;
+import system.Offer;
+import system.Product;
+import system.Question;
 
 public class View {
 
@@ -42,7 +47,6 @@ public class View {
     private static final String END_LOOP = "0";
     private static final String EXIT_SYSTEM = "29";
     private static final String EXIT_MENU = "sair";
-    private static final String EXIT_MESSAGE = "Adios!";
     private static final String LIST_PRODUCTS = "1";
     private static final String LOGIN_ACCOUNT = "2";
     private static final String LOGIN_COSTUMER = "1";
@@ -60,6 +64,7 @@ public class View {
         try {
             //reader = new FileReader(VIEW_PROPERTIES);  
             //p.load(reader);
+            // TODO corrigir acesso aos recursos
             this.controlChannel = new JChannel("control.xml");
             this.viewChannel = new JChannel("view.xml");
         } catch (Exception e) {
@@ -72,7 +77,7 @@ public class View {
         this.controlChannel.setReceiver((Receiver) this);
         this.viewChannel.setReceiver((Receiver) this);
 
-        do{
+        do {
             accessSystem();
             if (customer != null) {
                 menuCustomer();
@@ -167,21 +172,21 @@ public class View {
         return CONTINUE_LOOP;
     }
 
-    private static void invalidOptionMessage(){
+    private static void invalidOptionMessage() {
         System.out.println("Opção inválida!\nPor favor entre com uma opção válida");
     }
 
-    private static String listAllProducts(){
+    private static String listAllProducts() {
         clearScreen();
         Boolean productIndexExist = true;
         ArrayList<Object> listOfProducts = printAndStoreProductList();
-        if(listOfProducts.size() > 0){
+        if(listOfProducts.size() > 0) {
             String option = ACCEPT_CHAR;
             String loop = CONTINUE_LOOP;
-            do{
+            do {
                 if (!option.equals(CREATE_ACCOUNT) && !option.equals(LOGIN_ACCOUNT)) {
                     invalidOptionMessage();
-                } else if(!productIndexExist){
+                } else if(!productIndexExist) {
                     productIndexOutOfRangeMessage();
                 }
                 productIndexExist = true;
@@ -189,11 +194,11 @@ public class View {
                 System.out.println("Deseja comprar algum dos itens?(" + ACCEPT_CHAR + "/" + DECLINE_CHAR + "): ");
                 selectOption = new Scanner(System.in);
                 option = selectOption.nextLine();
-                if(option.equals(ACCEPT_CHAR)){
+                if(option.equals(ACCEPT_CHAR)) {
                     System.out.println("Informe o indice que aparece no inicio do produto: ");
                     selectOption = new Scanner(System.in);
                     int indexProduct = selectOption.nextInt();
-                    if(indexProduct < 0 || indexProduct >= listOfProducts.size()){
+                    if(indexProduct < 0 || indexProduct >= listOfProducts.size()) {
                         productIndexExist = false;
                     } else{
                         Product specificProduct = (Product)listOfProducts.get(indexProduct);
@@ -207,7 +212,7 @@ public class View {
         return CONTINUE_LOOP;
     }
 
-    private static void listOfProductsEmptyMessage(){
+    private static void listOfProductsEmptyMessage() {
         System.out.println("Nenhum produto foi anunciado até o momento!");
     }
 
@@ -340,18 +345,18 @@ public class View {
         System.out.println("As senhas informadas não são iguais!");
     }
 
-    private static ArrayList<Object> printAndStoreProductList(){
+    private static ArrayList<Object> printAndStoreProductList() {
         Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.LIST_ITENS, null);
         newComunication = sendMessage(newComunication);
         ArrayList<Object> listOfProducts = (ArrayList<Object>)newComunication.content;
-        for(int i = 0; i < listOfProducts.size(); i++){
+        for(int i = 0; i < listOfProducts.size(); i++) {
             String index = String.valueOf(i);
             System.out.println(index+"\t-- "+listOfProducts.get(i));
         }
         return listOfProducts;
     }
 
-    private static void printSpecificProductComplete(Product specificProduct){
+    private static void printSpecificProductComplete(Product specificProduct) {
         System.out.println(specificProduct.id);
         System.out.println("Descrição: "+specificProduct.description);
         System.out.println("Quantia total disponivel: "+specificProduct.count);
@@ -370,7 +375,7 @@ public class View {
         System.out.println("============= FIM FAQ =============");
     }
 
-    private static void printSpecificProductWithoutFAQ(Product specificProduct){
+    private static void printSpecificProductWithoutFAQ(Product specificProduct) {
         System.out.println(specificProduct.id);
         System.out.println("Descrição: "+specificProduct.description);
         System.out.println("Quantia total disponivel: "+specificProduct.count);
@@ -383,7 +388,7 @@ public class View {
         System.out.println("=========== FIM OFERTAS ===========");
     }
 
-    private static void printSpecificProductWithoutOffers(Product specificProduct){
+    private static void printSpecificProductWithoutOffers(Product specificProduct) {
         System.out.println(specificProduct.id);
         System.out.println("Descrição: "+specificProduct.description);
         System.out.println("Quantia total disponivel: "+specificProduct.count);
@@ -395,11 +400,11 @@ public class View {
         System.out.println("============= FIM FAQ =============");
     }
 
-    private static void productIndexOutOfRangeMessage(){
+    private static void productIndexOutOfRangeMessage() {
         System.out.println("Index do produto não existe!");
     }
 
-    private static String searchProduct(){
+    private static String searchProduct() {
         System.out.println("");
         return CONTINUE_LOOP;
     }
@@ -419,22 +424,20 @@ public class View {
         return responseComunication.getFirst();
     }
 
-    private static String specificProductPurchase(Product specificProduct){
+    private static String specificProductPurchase(Product specificProduct) {
         printSpecificProductWithoutFAQ(specificProduct);
-        a
         return CONTINUE_LOOP;
     }
 
-    private static String specificProductQuestion(Product specificProduct){
+    private static String specificProductQuestion(Product specificProduct) {
         printSpecificProductWithoutOffers(specificProduct);
-        b
         return CONTINUE_LOOP;
     }
 
-    private static String specificProductScreen(Product specificProduct){
+    private static String specificProductScreen(Product specificProduct) {
         String option = MAKE_PURCHASE;
         String loop = CONTINUE_LOOP;
-        do{
+        do {
             printSpecificProductComplete(specificProduct);
             System.out.println(MAKE_PURCHASE+" - Realizar compra");
             System.out.println(MAKE_QUESTION+" - Realizar pergunta");
@@ -443,13 +446,12 @@ public class View {
             option = selectOption.nextLine();
             if (option.equals(EXIT_MENU)) {
                 break;
-            } else if(option.equals(MAKE_PURCHASE)){
+            } else if(option.equals(MAKE_PURCHASE)) {
                 loop = specificProductPurchase(specificProduct);
-            } else if(option.equals(MAKE_QUESTION)){
+            } else if(option.equals(MAKE_QUESTION)) {
                 loop = specificProductQuestion(specificProduct);
             }
         } while(!option.equals(MAKE_PURCHASE) && !option.equals(MAKE_QUESTION) || loop.equals(END_LOOP));
-        asasasa
         /* 
          * Realizar compra:
          * int purchase(String customer, String seller, String product, int amount)

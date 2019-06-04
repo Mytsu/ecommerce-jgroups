@@ -24,15 +24,15 @@ public class CustomerDAO implements Serializable {
         this.customers.get(customerId).add_funds(funds);
     }
 
-    public Customer get_customer(String customer){
+    public Customer get_customer(String customer) {
         return this.customers.get(customer);
     }
 
-    public HashMap<String, Customer> get_customers(){
+    public HashMap<String, Customer> get_customers() {
         return this.customers;
     }
 
-    public boolean exists(String customer){
+    public boolean exists(String customer) {
         if(this.customers.containsKey(customer))
             return true;
         return false;

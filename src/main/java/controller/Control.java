@@ -20,7 +20,7 @@ public class Control implements Serializable {
     public JChannel viewChannel;
     public JChannel modelChannel;
     
-    Control(){
+    Control() {
         this.customers = new CustomerDAO();
         this.sellers = new SellerDAO();
         this.products = new ProductDAO();
@@ -45,7 +45,7 @@ public class Control implements Serializable {
     /////////////////////////////////////////////////////////////////////////////////////////
     
     // Function to add a customer
-    public boolean add_customer(String id, String fullname, String password){
+    public boolean add_customer(String id, String fullname, String password) {
 
         Customer customer = new Customer(id, fullname, password);
 
@@ -58,7 +58,7 @@ public class Control implements Serializable {
         return true;
     }
 
-    public boolean login_customer(String customer, String password){
+    public boolean login_customer(String customer, String password) {
         // Verifica se o cliente existe
         if(!this.customers.exists(customer))
             return false;
@@ -69,13 +69,13 @@ public class Control implements Serializable {
     }
 
     // Funcao feita para busca de produtos
-    public ArrayList<Product> search_product(String string){
+    public ArrayList<Product> search_product(String string) {
         
         ArrayList<Product> lista = new ArrayList<Product>();
 
         for (Entry<String, Product> entry : this.products.get_products().entrySet()) {
             String key = entry.getKey();
-            if(key.contains(string)){
+            if(key.contains(string)) {
                 Product prod = entry.getValue();
                 lista.add(prod);
             }
@@ -83,7 +83,7 @@ public class Control implements Serializable {
         return lista;
     }
 
-    public int purchase(String customer, String seller, String product, int amount){
+    public int purchase(String customer, String seller, String product, int amount) {
 
         // Verifica se o produto está no hashmap
         if(!this.products.exists(product)) {
@@ -132,7 +132,7 @@ public class Control implements Serializable {
         return 0;
     }
 
-    public ArrayList<Product> list_products(){
+    public ArrayList<Product> list_products() {
     	
     	ArrayList<Product> lista = new ArrayList<Product>();
         for (Entry<String, Product> entry : this.products.get_products().entrySet()) {
@@ -225,7 +225,7 @@ public class Control implements Serializable {
     	
     	Answer response = new Answer(seller, answer);
     	
-    	if(products.get_product(product).add_answer(response)){
+    	if(products.get_product(product).add_answer(response)) {
     		return true;
     	}
     	
@@ -254,7 +254,7 @@ public class Control implements Serializable {
         return soma;
     }
 
-    public boolean is_founds_right(){
+    public boolean is_founds_right() {
         if( this.customers.num_customers*1000 == this.get_total_founds())
             return true;
         return false;
@@ -289,9 +289,9 @@ public class Control implements Serializable {
     	
     	ArrayList<Object> content = new ArrayList<Object>();
     
-    	if(msg.channel == EnumChannel.VIEW_TO_CONTROL){
+    	if(msg.channel == EnumChannel.VIEW_TO_CONTROL) {
     		
-    		if (msg.service == EnumServices.ADD_ITEM){
+    		if (msg.service == EnumServices.ADD_ITEM) {
     			// int add_product(String idSeller, String product, Float price, long amount, String description)
     			int var = this.add_product((String)msg.content.get(0), (String)msg.content.get(1), (float)msg.content.get(2),
     					(long)msg.content.get(3), (String)msg.content.get(4));
@@ -299,7 +299,7 @@ public class Control implements Serializable {
     			response.service = EnumServices.ADD_ITEM;
     		}
     		
-    		else if (msg.service == EnumServices.BUY_ITEM){
+    		else if (msg.service == EnumServices.BUY_ITEM) {
     			// int purchase(String customer, String seller, String product, int amount)
     			int var = this.purchase((String)msg.content.get(0), (String)msg.content.get(1),
     					(String)msg.content.get(2), (int)msg.content.get(3));
@@ -344,7 +344,7 @@ public class Control implements Serializable {
     			response.service = EnumServices.LOGIN_SELLER;    			
     		}
     		
-    		else if(msg.service == EnumServices.MAKE_QUESTION){
+    		else if(msg.service == EnumServices.MAKE_QUESTION) {
     			//boolean sendQuestion(String customer, String product, String msg)
     			boolean var = this.sendQuestion((String)msg.content.get(0), (String)msg.content.get(1),
     					(String)msg.content.get(2));

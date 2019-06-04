@@ -8,7 +8,7 @@ public class SellerDAO implements Serializable {
     private static final long serialVersionUID = 4506509784967298618L;
     private HashMap<String, Seller> sellersList;
 
-    public SellerDAO(){
+    public SellerDAO() {
         this.sellersList = new HashMap<String, Seller>();
     }
 
@@ -20,15 +20,15 @@ public class SellerDAO implements Serializable {
         this.sellersList.put(seller.id, seller);
     }
 
-    public Seller get_seller(String seller){
+    public Seller get_seller(String seller) {
         return this.sellersList.get(seller);
     }
 
-    public HashMap<String, Seller> get_sellers(){
+    public HashMap<String, Seller> get_sellers() {
         return sellersList;
     }
 
-    public boolean exists(String seller){
+    public boolean exists(String seller) {
         if(this.sellersList.containsKey(seller))
             return true;
         return false;

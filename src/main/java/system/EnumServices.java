@@ -27,7 +27,7 @@ public enum EnumServices {
 	
 	
 	private final int value;
-	EnumServices(int requestValue){
+	EnumServices(int requestValue) {
 		value = requestValue;
 	}
 	

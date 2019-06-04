@@ -16,15 +16,15 @@ public class User {
         this.sell = new ArrayList<Sell>();
     }
 
-    public void add_funds(double funds){
+    public void add_funds(double funds) {
         this.funds += funds;
     }
 
-    public double get_funds(){
+    public double get_funds() {
         return this.funds;
     }
 
-    public void add_sell(Sell sell){
+    public void add_sell(Sell sell) {
         this.sell.add(sell);
     }
 
