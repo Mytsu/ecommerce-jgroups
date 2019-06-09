@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 //import java.util.Properties;
 //import java.io.FileReader;
 
+import javax.swing.text.AbstractDocument.Content;
+
 import org.jgroups.Address;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
@@ -40,20 +42,29 @@ public class View {
     //private static FileReader reader;
     //private static final Properties p = new Properties();
     //private static final String ACCEPT_CHAR = p.getProperty("ACCEPT_CHAR");
+    
+    // GENERAL OPTIONS:
     private static final String ACCEPT_CHAR = "s";
     private static final String CONTINUE_LOOP = "1";
-    private static final String CREATE_ACCOUNT = "1";
     private static final String DECLINE_CHAR = "n";
+    private static final String EMPTY_STRING = "";
     private static final String END_LOOP = "0";
-    private static final String EXIT_SYSTEM = "29";
     private static final String EXIT_MENU = "sair";
-    private static final String LIST_PRODUCTS = "1";
+    // ACCESS SYSTEM OPTIONS:
+    private static final String CREATE_ACCOUNT = "1";
     private static final String LOGIN_ACCOUNT = "2";
+    private static final String EXIT_SYSTEM = "29";
+    // CREATE ACCOUNT OPTIONS:
     private static final String LOGIN_COSTUMER = "1";
     private static final String LOGIN_SELLER = "2";
+    // CUSTOMER ACCOUNT OPTIONS:
+    private static final String LIST_PRODUCTS = "1";
+    private static final String SEARCH_PRODUCT = "2";
+    private static final String BUYING_LIST = "3";
+    // CUSTOMER PRODUCT OPTIONS:
     private static final String MAKE_PURCHASE = "1";
     private static final String MAKE_QUESTION = "2";
-    private static final String SEARCH_PRODUCT = "2";
+
 
     private JChannel controlChannel;
     private JChannel viewChannel;
@@ -116,6 +127,14 @@ public class View {
 
     private static void backMessage() {
         System.out.print("Para voltar ao menu anterior digite: " + EXIT_MENU);
+    }
+
+    private static String buyingList() {
+        Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices., content);
+        newComunication = sendMessage(newComunication);
+        System.out.println("");
+        a
+        return CONTINUE_LOOP;
     }
 
     private static void clearScreen() {
@@ -296,6 +315,7 @@ public class View {
             selectOption = new Scanner(System.in);
             String password = selectOption.nextLine();
             ArrayList<Object> content = new ArrayList<Object>();
+            content.clear();
             content.add(nickname);
             content.add(password);
             Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.LOGIN_SELLER, content);
@@ -318,9 +338,10 @@ public class View {
                 System.out.println("Opção inválida!\nPor favor entre com uma opção válida");
             }
             System.out.println("=========== CONSUMIDOR ===========");
-            System.out.println("Bem vindo "+customer);
-            System.out.println(LIST_PRODUCTS+" - Listar todos produtos");
-            System.out.println(SEARCH_PRODUCT+" - Buscar produto");
+            System.out.println("Bem vindo " + customer);
+            System.out.println(LIST_PRODUCTS + " - Listar todos produtos");
+            System.out.println(SEARCH_PRODUCT + " - Buscar produto");
+            System.out.println(BUYING_LIST + " - Listar compras realizadas");
             backMessage();
             selectOption = new Scanner(System.in);
             option = selectOption.nextLine();
@@ -330,8 +351,10 @@ public class View {
                 loop = listAllProducts();
             } else if (option.equals(SEARCH_PRODUCT)) {
                 loop = searchProduct();
+            } else if (option.equals(BUYING_LIST)) {
+                loop = buyingList();
             }
-        } while (!option.equals(LIST_PRODUCTS) && !option.equals(SEARCH_PRODUCT) || loop == END_LOOP);
+        } while (!option.equals(LIST_PRODUCTS) && !option.equals(SEARCH_PRODUCT) && !option.equals(BUYING_LIST) || loop == END_LOOP);
     }
 
     private static void menuSeller() {
@@ -351,26 +374,26 @@ public class View {
         ArrayList<Object> listOfProducts = (ArrayList<Object>)newComunication.content;
         for(int i = 0; i < listOfProducts.size(); i++) {
             String index = String.valueOf(i);
-            System.out.println(index+"\t-- "+listOfProducts.get(i));
+            System.out.println(index+"\t-- " + listOfProducts.get(i));
         }
         return listOfProducts;
     }
 
     private static void printSpecificProductComplete(Product specificProduct) {
         System.out.println(specificProduct.id);
-        System.out.println("Descrição: "+specificProduct.description);
-        System.out.println("Quantia total disponivel: "+specificProduct.count);
+        System.out.println("Descrição: " + specificProduct.description);
+        System.out.println("Quantia total disponivel: " + specificProduct.count);
         System.out.println("Ofertas disponiveis: ");
         for (Entry<String, Offer> entry : specificProduct.offers.entrySet()) {
-            System.out.print("Nome do vendedor: "+entry.getValue().id);
-            System.out.print("\tPreço: "+entry.getValue().price);
-            System.out.print("\tQuantia disponivel: "+entry.getValue().amount);
+            System.out.print("Nome do vendedor: " + entry.getValue().id);
+            System.out.print("\tPreço: " + entry.getValue().price);
+            System.out.print("\tQuantia disponivel: " + entry.getValue().amount);
         }
         System.out.println("=========== FIM OFERTAS ===========");
         System.out.println("FAQ: ");
         for (Entry<String, Question> entry : specificProduct.questions.entrySet()) {
-            System.out.print("Usuário: "+entry.getValue().userId);
-            System.out.print("\tPergunta: "+entry.getValue().id);
+            System.out.print("Usuário: " + entry.getValue().userId);
+            System.out.print("\tPergunta: " + entry.getValue().id);
         }
         System.out.println("============= FIM FAQ =============");
     }
@@ -406,6 +429,7 @@ public class View {
 
     private static String searchProduct() {
         System.out.println("");
+        a
         return CONTINUE_LOOP;
     }
 
@@ -425,12 +449,73 @@ public class View {
     }
 
     private static String specificProductPurchase(Product specificProduct) {
-        printSpecificProductWithoutFAQ(specificProduct);
+        /* 
+         * Realizar compra:
+         * int purchase(String customer, String seller, String product, int amount)
+         */
+        ArrayList<Object> content = new ArrayList<Object>();
+        int amountBought;
+        String option = EMPTY_STRING;
+        String loop = CONTINUE_LOOP;
+        String sellerName = EMPTY_STRING;  
+        do {
+            content.clear();
+            printSpecificProductWithoutFAQ(specificProduct);
+            System.out.println("Informe o nome do vendedor do qual deseja comprar: ");
+            backMessage();
+            selectOption = new Scanner(System.in);
+            option = selectOption.nextLine();
+            if (option.equals(EXIT_MENU)) {
+                break;
+            }
+            sellerName = option;
+            content.add(customer);
+            content.add(sellerName);
+            content.add(specificProduct.id);
+            while(loop.equals(CONTINUE_LOOP)){
+                try {
+                    System.out.println("Informe a quantia que deseja comprar desse vendedor: ");
+                    selectOption = new Scanner(System.in);
+                    amountBought = selectOption.nextInt();
+                    content.add(amountBought);
+                    loop = END_LOOP;
+                } catch (Exception e) {
+                    loop = CONTINUE_LOOP;
+                }
+            }
+        } while(!option.equals(EMPTY_STRING) && loop.equals(END_LOOP));
+        Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.BUY_ITEM, content);
+        newComunication = sendMessage(newComunication);
+        a
         return CONTINUE_LOOP;
     }
 
     private static String specificProductQuestion(Product specificProduct) {
-        printSpecificProductWithoutOffers(specificProduct);
+        /* 
+         * Realizar pergunta:
+         * boolean sendQuestion(String customer, String product, String msg)
+         */
+        ArrayList<Object> content = new ArrayList<Object>();
+        String option = EMPTY_STRING;
+        String question = EMPTY_STRING;
+        do {
+            content.clear();
+            content.add(customer);
+            content.add(specificProduct.id);
+            printSpecificProductWithoutOffers(specificProduct);
+            System.out.println("Escreva sua pergunta: ");
+            backMessage();
+            selectOption = new Scanner(System.in);
+            option = selectOption.nextLine();
+            if (option.equals(EXIT_MENU)) {
+                break;
+            }
+            question = option;
+            content.add(question);
+        } while(!option.equals(EMPTY_STRING));
+        Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.MAKE_QUESTION, content);
+        newComunication = sendMessage(newComunication);
+        a
         return CONTINUE_LOOP;
     }
 
@@ -452,14 +537,6 @@ public class View {
                 loop = specificProductQuestion(specificProduct);
             }
         } while(!option.equals(MAKE_PURCHASE) && !option.equals(MAKE_QUESTION) || loop.equals(END_LOOP));
-        /* 
-         * Realizar compra:
-         * int purchase(String customer, String seller, String product, int amount)
-         * 
-         * Realizar pergunta:
-         * boolean sendQuestion(String customer, String product, String msg)
-         */
-
         return CONTINUE_LOOP;
     }
 
