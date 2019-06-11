@@ -503,14 +503,25 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     		// Mensagem de quando um membro do controle manda para o grupo da visao falando que ele existe
     		//a mensagem vai acabar chegando para membros do controle que meio que ignoram a mesma
     		if(msg.service == EnumServices.NEW_CONTROL_MEMBER) {
-    			response.channel = EnumChannel.CONTROL_TO_CONTROL;
     			response.service = EnumServices.NEW_CONTROL_MEMBER;
-    			response.content = null;
+    			content = null;
     		}
+    		
+    		response.channel = EnumChannel.CONTROL_TO_CONTROL;
+    		response.content = content;
     	}
     	
     	else if(msg.channel == EnumChannel.MODEL_TO_CONTROL) {
     		
+    		// Multicast que o modelo vai dar e todos os controles precisam adicionar o endereço do modelo em questao
+    		if(msg.service == EnumServices.NEW_MODEL_MEMBER) {
+    			this.enderecosModelo.add(message.getSrc());
+    			response.service = EnumServices.NEW_MODEL_MEMBER;
+    			content = null;
+    		}
+    		
+    		response.channel = EnumChannel.CONTROL_TO_MODEL;
+    		response.content = content;
     	}
     
 

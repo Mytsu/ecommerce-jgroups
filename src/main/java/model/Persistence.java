@@ -134,10 +134,11 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		//dai todos os membros do modelo respondem para que ele adicione todos no seu vetor de endereços
     		else if(msg.service == EnumServices.NEW_CONTROL_MEMBER) {
     			response.service = EnumServices.NEW_CONTROL_MEMBER;
+    			content = null;
     		}
     		
     		response.channel = EnumChannel.MODEL_TO_CONTROL;
-    		response.content = null;
+    		response.content = content;
     	}
     	
     	
