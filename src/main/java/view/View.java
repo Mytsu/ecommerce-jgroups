@@ -24,6 +24,7 @@ import system.EnumServices;
 import system.Offer;
 import system.Product;
 import system.Question;
+import system.Sell;
 
 public class View {
 
@@ -129,9 +130,14 @@ public class View {
         System.out.print("Para voltar ao menu anterior digite: " + EXIT_MENU);
     }
 
-    private static String buyingList() {
-        Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices., content);
+	private static String buyingList() {
+    	ArrayList<Object> content = new ArrayList<Object>();
+    	content.add(customer);
+    	Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.BOUGHT_ITENS, content);
         newComunication = sendMessage(newComunication);
+        
+        ArrayList<Sell> buyingList = new ArrayList<Sell>();
+        buyingList = (ArrayList<Sell>) newComunication.content.get(0);
         System.out.println("");
         a
         return CONTINUE_LOOP;
