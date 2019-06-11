@@ -2,7 +2,8 @@ package system;
 
 
 public enum EnumServices {
-
+	
+	//Servicos da visao pro controle
 	CREATE_CUSTOMER(1),
 	CREATE_SELLER(2),
 	LOGIN_CUSTOMER(3),
@@ -16,15 +17,22 @@ public enum EnumServices {
 	SOLD_ITENS(11),
 	BOUGHT_ITENS(12),
 	
-	GET_ITENS(13),
-	GET_CUSTOMERS(14),
-	GET_SELLERS(15),
-	SAVE_ITEM(16),
-	SAVE_CUSTOMER(17),
-	SAVE_SELLER(18),
+	//Servicos do controle pro modelo
+	GET_ITENS(31),
+	GET_CUSTOMERS(32),
+	GET_SELLERS(33),
+	SAVE_ITEM(34),
+	SAVE_CUSTOMER(35),
+	SAVE_SELLER(36),
 	
-	TOTAL_FUNDS_BOOL(99),
-	TOTAL_FUNDS_INT(100)
+	//Servicos para montagem dos subgrupos
+	NEW_VIEW_MEMBER(61),
+	NEW_CONTROL_MEMBER(62),
+	NEW_MODEL_MEMBER(63),
+	
+	//Servicos do sistema
+	TOTAL_FUNDS_BOOL(91),
+	TOTAL_FUNDS_INT(92)
 	;
 	
 	

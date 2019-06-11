@@ -1,36 +1,78 @@
 package model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.jgroups.Address;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.Receiver;
+import org.jgroups.ReceiverAdapter;
+import org.jgroups.blocks.MessageDispatcher;
+import org.jgroups.blocks.RequestHandler;
+import org.jgroups.blocks.RequestOptions;
+import org.jgroups.blocks.ResponseMode;
+import org.jgroups.util.Rsp;
+import org.jgroups.util.RspList;
 
 import system.*;
 
-public class Persistence {
+public class Persistence extends ReceiverAdapter implements RequestHandler, Serializable{
 
+    private static final long serialVersionUID = 4506509784967298618L;
+	
     private CustomerDAO customers;
     public SellerDAO sellers;
     public ProductDAO products;
-    public JChannel controlChannel ;
-    public JChannel modelChannel ;
     
-    Persistence(){
-    	try {
-			this.controlChannel = new JChannel("control.xml");
-			this.modelChannel = new JChannel("model.xml");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-        this.controlChannel.setReceiver((Receiver) this);
-        this.modelChannel.setReceiver((Receiver) this);
+    public JChannel control_modelChannel ;
+    private MessageDispatcher control_modelDispatcher;
+    
+    Persistence() throws Exception{
     	
         this.customers = new CustomerDAO();
         this.sellers = new SellerDAO();
         this.products = new ProductDAO();
+        
+        try {
+			this.control_modelChannel = new JChannel("control_model.xml");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        
+        this.control_modelChannel.setReceiver(this);
+        
+        control_modelDispatcher = new MessageDispatcher(this.control_modelChannel, null, null, this);
+        
+        // Tive que colocar o throws para nao ter que dar try catch abaixo
+        this.control_modelChannel.connect("ControlModelChannel");
+        
+        this.montaGrupo();
+        
     }
+    
+    private void montaGrupo() {
+        
+        // Informa para todos os membros do controle que há um novo modelo no pedaço e não anota nenhum endereço
+    	RequestOptions options = new RequestOptions();
+        options.setMode(ResponseMode.GET_NONE);
+        options.setAnycasting(false);
+        
+        Comunication comunication = new Comunication(EnumChannel.MODEL_TO_CONTROL, EnumServices.NEW_MODEL_MEMBER, null);
+        Address cluster = null;
+        Message newMessage = new Message(cluster, comunication);
+        
+        try {
+			this.control_modelDispatcher.castMessage(null, newMessage, options);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+    	return;
+    }
+    
     
     public void receive(Message msg) { //exibe mensagens recebidas
     	/*  No trabalho, vocês deverão verificar qual o tipo de mensagem informativa
@@ -43,7 +85,6 @@ public class Persistence {
         }
         
 
-    
     private HashMap<String, Product> getItens() {
     	return products.get_products();
     }
@@ -57,9 +98,10 @@ public class Persistence {
     }
     
     // responde requisições recebidas
-    public Object handle(Comunication msg) throws Exception{
-
+    @Override
+    public Object handle(Message message) throws Exception{
     	
+    	Comunication msg = (Comunication)message.getObject();    	
         
     	Comunication response = new Comunication();
     		
@@ -86,11 +128,28 @@ public class Persistence {
     			response.service = EnumServices.GET_SELLERS;
     			HashMap<String, Seller> var = getSellers();
     			content.add(var);
-    		}    		
+    		}
+    		
+    		// Resposta para quando um membro da controle manda um multicast avisando que é novo
+    		//dai todos os membros do modelo respondem para que ele adicione todos no seu vetor de endereços
+    		else if(msg.service == EnumServices.NEW_CONTROL_MEMBER) {
+    			response.service = EnumServices.NEW_CONTROL_MEMBER;
+    		}
     		
     		response.channel = EnumChannel.MODEL_TO_CONTROL;
-    		response.content = content;
-    	}      
+    		response.content = null;
+    	}
+    	
+    	
+    	else if (msg.channel == EnumChannel.MODEL_TO_CONTROL) {
+    		// Mensagem de quando um membro do modelo manda para o grupo do controle falando que ele existe
+    		//a mensagem vai acabar chegando para membros do modelo que meio que ignoram a mesma
+    		if(msg.service == EnumServices.NEW_MODEL_MEMBER) {
+    			response.channel = EnumChannel.MODEL_TO_MODEL;
+    			response.service = EnumServices.NEW_MODEL_MEMBER;
+    			response.content = null;
+    		}
+    	}
 
     	  //DEBUG: neste exemplo, a Message contém apenas uma String 
           // contendo uma pergunta qualquer. 

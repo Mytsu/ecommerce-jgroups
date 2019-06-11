@@ -2,6 +2,7 @@ package view;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Vector;
 import java.util.Map.Entry;
 //import java.util.Properties;
 //import java.io.FileReader;
@@ -12,10 +13,12 @@ import org.jgroups.Address;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.Receiver;
+import org.jgroups.ReceiverAdapter;
 import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestHandler;
 import org.jgroups.blocks.RequestOptions;
 import org.jgroups.blocks.ResponseMode;
+import org.jgroups.util.Rsp;
 import org.jgroups.util.RspList;
 
 import system.Comunication;
@@ -26,7 +29,7 @@ import system.Product;
 import system.Question;
 import system.Sell;
 
-public class View {
+public class View extends ReceiverAdapter implements RequestHandler{
 
     /**
 	 * Não sei se o arquivo .properties está funcionando
@@ -66,28 +69,34 @@ public class View {
     private static final String MAKE_PURCHASE = "1";
     private static final String MAKE_QUESTION = "2";
 
-
-    private JChannel controlChannel;
-    private JChannel viewChannel;
+    
+    private JChannel view_controlChannel;
     //private static MessageDispatcher viewDispatcher;
     private static MessageDispatcher controlDispatcher;
+    
+    private Vector<Address> enderecosControle;
 
-    public View() {
+    public View() throws Exception {
         try {
             //reader = new FileReader(VIEW_PROPERTIES);  
             //p.load(reader);
             // TODO corrigir acesso aos recursos
-            this.controlChannel = new JChannel("control.xml");
-            this.viewChannel = new JChannel("view.xml");
+            this.view_controlChannel = new JChannel("view_control.xml");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        enderecosControle = new Vector<Address>();
+        
         //this.viewDispatcher = new MessageDispatcher(this.viewChannel, null, null, (RequestHandler) this);
-        controlDispatcher = new MessageDispatcher(this.viewChannel, null, null, (RequestHandler) this);
+        controlDispatcher = new MessageDispatcher(this.view_controlChannel, null, null, this);
 
-        this.controlChannel.setReceiver((Receiver) this);
-        this.viewChannel.setReceiver((Receiver) this);
+        this.view_controlChannel.setReceiver(this);
+        
+        // Tive que colocar o throws para nao ter que dar try catch abaixo
+        this.view_controlChannel.connect("ViewControlChannel");
+        
+        this.montaGrupo();
 
         do {
             accessSystem();
@@ -100,6 +109,31 @@ public class View {
         System.out.println("Adios");
     }
 
+    private void montaGrupo() {
+    	RequestOptions options = new RequestOptions();
+        options.setMode(ResponseMode.GET_ALL);
+        options.setAnycasting(false);
+        
+        Comunication comunication = new Comunication(EnumChannel.VIEW_TO_CONTROL,EnumServices.NEW_VIEW_MEMBER,null);
+        Address cluster = null;
+        Message newMessage = new Message(cluster, comunication);
+
+        RspList<Comunication> list = null;
+		try {
+			list = controlDispatcher.castMessage(null, newMessage, options);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        for(Rsp<Comunication> x : list) {
+            if(x.getValue().channel == EnumChannel.CONTROL_TO_VIEW)
+                enderecosControle.add(x.getSender());
+        }
+        
+    	return;
+    }
+    
     private static void accessSystem() {
         customer = null;
         seller = null;
@@ -554,4 +588,51 @@ public class View {
         System.out.println("Usuário criado com sucesso!");
     }
 
+    // responde requisições recebidas
+    @Override
+    public Object handle(Message message) throws Exception{
+
+	/*  No trabalho, vocês deverão verificar qual o tipo de mensagem requisitativa
+		chegou e tratá-la conforme o caso. DICA: o objeto colocado dentro da
+		Message poderia ser um registro contendo vários campos, para facilitar
+	*/
+    	Comunication msg = (Comunication) message.getObject();
+    	Comunication response = new Comunication();
+    	
+    	//ArrayList<Object> content = new ArrayList<Object>();
+    
+    	if(msg.channel == EnumChannel.VIEW_TO_CONTROL) {
+    		
+    		if(msg.service == EnumServices.NEW_VIEW_MEMBER) {
+        		response.channel = EnumChannel.VIEW_TO_VIEW;
+        		response.service = EnumServices.NEW_VIEW_MEMBER;
+        		response.content = null;
+        	}
+    		
+    	}
+    	
+    	else if(msg.channel == EnumChannel.CONTROL_TO_VIEW) {
+    		
+    		if(msg.service == EnumServices.NEW_CONTROL_MEMBER) {
+    			this.enderecosControle.add(message.getSrc());
+    			return null;
+    		}
+    		
+    	}
+    
+
+	  //DEBUG: neste exemplo, a Message contém apenas uma String 
+      // contendo uma pergunta qualquer. 
+      //String pergunta = (String) msg.getObject();
+      //System.out.println("RECEBI uma mensagem: " + pergunta+"\n");
+      //User usuario = new User("UserNameQQ1","NomeCompletoQQ1","PassWordQQ1",122.541);
+      //if(pergunta.contains("concorda"))
+      //    return pergunta;
+        //return "SIM (1)"; //resposta à requisição contida na mensagem
+      //else
+      //  return " NÃO (1)";
+    	
+    	return response;
+    }
+    
 }

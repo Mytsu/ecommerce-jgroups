@@ -1,14 +1,22 @@
 package controller;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Map.Entry;
+import java.util.Vector;
+
 import org.jgroups.*;
+import org.jgroups.blocks.MessageDispatcher;
+import org.jgroups.blocks.RequestHandler;
+import org.jgroups.blocks.RequestOptions;
+import org.jgroups.blocks.ResponseMode;
+import org.jgroups.util.Rsp;
+import org.jgroups.util.RspList;
+
 import system.*;
 
 
-public class Control implements Serializable {
+public class Control extends ReceiverAdapter implements RequestHandler, Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
 
@@ -17,26 +25,88 @@ public class Control implements Serializable {
     public CustomerDAO customers;
     public SellerDAO sellers;
     public ProductDAO products;
-    public JChannel controlChannel;
-    public JChannel viewChannel;
-    public JChannel modelChannel;
     
-    Control() {
+    public JChannel view_controlChannel;
+    public JChannel control_modelChannel;
+    
+    private MessageDispatcher control_viewDispatcher;
+    private MessageDispatcher control_modelDispatcher;
+    
+    private Vector<Address> enderecosModelo;
+    
+    Control() throws Exception {
+    	
         this.customers = new CustomerDAO();
         this.sellers = new SellerDAO();
         this.products = new ProductDAO();
         
+        enderecosModelo = new Vector<Address>();
+        
         try {
-			this.controlChannel = new JChannel("control.xml");
-			this.viewChannel = new JChannel("view.xml");
-			this.modelChannel = new JChannel("model.xml");
+			this.view_controlChannel = new JChannel("view_control.xml");
+			this.control_modelChannel = new JChannel("control_model.xml");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
         
-        this.controlChannel.setReceiver((Receiver) this);
-        this.viewChannel.setReceiver((Receiver) this);
-        this.modelChannel.setReceiver((Receiver) this);
+        this.view_controlChannel.setReceiver(this);
+        this.control_modelChannel.setReceiver(this);
+        
+        control_viewDispatcher = new MessageDispatcher(this.view_controlChannel, null, null, this);
+        control_modelDispatcher = new MessageDispatcher(this.control_modelChannel, null, null, this);
+        
+        // Tive que colocar o throws para nao ter que dar try catch abaixo
+        this.view_controlChannel.connect("ViewControlChannel");
+        this.control_modelChannel.connect("ControlModelChannel");
+        
+        this.montaGrupo();
+    }
+    
+    private void montaGrupo() {
+    	
+    	// Organiza todas as informações para mandar uma mensagem e obter todos os endereços do modelo
+    	RequestOptions options = new RequestOptions();
+        options.setMode(ResponseMode.GET_ALL);
+        options.setAnycasting(false);
+        
+        Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.NEW_CONTROL_MEMBER, null);
+        Address cluster = null;
+        Message newMessage = new Message(cluster, comunication);
+
+        RspList<Comunication> list = null;
+		try {
+			list = control_modelDispatcher.castMessage(null, newMessage, options);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        for(Rsp<Comunication> x : list) {
+            if(x.getValue().channel == EnumChannel.MODEL_TO_CONTROL)
+                enderecosModelo.add(x.getSender());
+        }
+        
+        
+        // Informa para todos os membros da visão que há um novo controle no pedaço e não anota nenhum endereço
+        options = null;
+        options = new RequestOptions();
+        options.setMode(ResponseMode.GET_NONE);
+        options.setAnycasting(false);
+        
+        comunication = null;
+        comunication =  new Comunication(EnumChannel.CONTROL_TO_VIEW, EnumServices.NEW_CONTROL_MEMBER, null);
+        cluster = null;
+        newMessage = null;
+        newMessage = new Message(cluster, comunication);
+        
+        try {
+			this.control_viewDispatcher.castMessage(null, newMessage, options);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+    	return;
     }
   
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -301,12 +371,14 @@ public class Control implements Serializable {
     
 
     // responde requisições recebidas
-    public Object handle(Comunication msg) throws Exception{
+    @Override
+    public Object handle(Message message) throws Exception{
 
 	/*  No trabalho, vocês deverão verificar qual o tipo de mensagem requisitativa
 		chegou e tratá-la conforme o caso. DICA: o objeto colocado dentro da
 		Message poderia ser um registro contendo vários campos, para facilitar
 	*/
+    	Comunication msg = (Comunication) message.getObject();
     	
     	Comunication response = new Comunication();
     	
@@ -396,6 +468,13 @@ public class Control implements Serializable {
     			content.add(var);
     			response.service = EnumServices.BOUGHT_ITENS;
     		}
+
+    		// Resposta para quando um membro da visão manda um multicast avisando que é novo
+    		//dai todos os membros do controle respondem para que ele adicione todos no seu vetor de endereços
+    		else if(msg.service == EnumServices.NEW_VIEW_MEMBER) {
+    			response.service = EnumServices.NEW_VIEW_MEMBER;
+    			content = null;
+    		}
     		
     		else if(msg.service == EnumServices.SOLD_ITENS) {
     			//ArrayList<Sell> getBougthItens(String customer)
@@ -411,9 +490,26 @@ public class Control implements Serializable {
     			response.service = EnumServices.TOTAL_FUNDS_BOOL;
     		}
     		
+
+    		
     		
     		response.channel = EnumChannel.CONTROL_TO_VIEW;
     		response.content = content;
+    		
+    	}
+    	
+    	else if(msg.channel == EnumChannel.CONTROL_TO_VIEW) {
+    		
+    		// Mensagem de quando um membro do controle manda para o grupo da visao falando que ele existe
+    		//a mensagem vai acabar chegando para membros do controle que meio que ignoram a mesma
+    		if(msg.service == EnumServices.NEW_CONTROL_MEMBER) {
+    			response.channel = EnumChannel.CONTROL_TO_CONTROL;
+    			response.service = EnumServices.NEW_CONTROL_MEMBER;
+    			response.content = null;
+    		}
+    	}
+    	
+    	else if(msg.channel == EnumChannel.MODEL_TO_CONTROL) {
     		
     	}
     
