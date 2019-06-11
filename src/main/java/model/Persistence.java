@@ -11,7 +11,7 @@ import system.*;
 
 public class Persistence {
 
-    public CustomerDAO customers;
+    private CustomerDAO customers;
     public SellerDAO sellers;
     public ProductDAO products;
     public JChannel controlChannel ;

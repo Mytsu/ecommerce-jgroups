@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import org.jgroups.*;
@@ -154,6 +155,17 @@ public class Control implements Serializable {
     	return retorno;
     }
     
+    public ArrayList<Sell> getBougthItens(String customer){
+    	ArrayList<Sell> array = new ArrayList<Sell>();
+    	
+        // Verifica se o cliente existe
+        if(this.customers.exists(customer)) {
+            array = this.customers.get_customer(customer).sell;
+        }
+    	
+        return array;
+    }
+    
        
     /////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -230,6 +242,17 @@ public class Control implements Serializable {
     	}
     	
     	return retorno;
+    }
+    
+    public ArrayList<Sell> getSoldItens(String seller){
+    	ArrayList<Sell> array = new ArrayList<Sell>();
+    	
+        // Verifica se o cliente existe
+        if(this.customers.exists(seller)) {
+            array = this.sellers.get_seller(seller).sell;
+        }
+    	
+        return array;
     }
     
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -367,12 +390,27 @@ public class Control implements Serializable {
     			response.service = EnumServices.SEND_ANSWER;
     		}
     		
+    		else if(msg.service == EnumServices.BOUGHT_ITENS) {
+    			//ArrayList<Sell> getBougthItens(String customer)
+    			ArrayList<Sell> var = this.getBougthItens((String)msg.content.get(0));
+    			content.add(var);
+    			response.service = EnumServices.BOUGHT_ITENS;
+    		}
+    		
+    		else if(msg.service == EnumServices.SOLD_ITENS) {
+    			//ArrayList<Sell> getBougthItens(String customer)
+    			ArrayList<Sell> var = this.getSoldItens((String)msg.content.get(0));
+    			content.add(var);
+    			response.service = EnumServices.SOLD_ITENS;
+    		}
+    		
     		else if(msg.service == EnumServices.TOTAL_FUNDS_BOOL) {
     			//boolean is_founds_right()
     			boolean var = this.is_founds_right();
     			content.add(var);
     			response.service = EnumServices.TOTAL_FUNDS_BOOL;
     		}
+    		
     		
     		response.channel = EnumChannel.CONTROL_TO_VIEW;
     		response.content = content;
