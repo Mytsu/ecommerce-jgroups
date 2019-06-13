@@ -121,8 +121,20 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         Customer customer = new Customer(id, fullname, password);
 
         // Verifica se o cliente existe
+        /* OLD
         if(this.customers.exists(id))
             return false;
+        */
+        
+        ArrayList<Object> content = new ArrayList<Object>();
+        content.add(id);
+        Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.CUSTOMER_EXIST, content);
+        comunication = this.sendMessageModelAny(comunication);
+        
+        if((boolean)comunication.content.get(0) == true) {
+        	
+        }
+
     
         customer.funds = INITIALFUNDING;
         this.customers.add_customer(customer);        
@@ -537,6 +549,61 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
       //  return " NÃO (1)";
     	
     	return response;
+    }
+    
+    private Comunication sendMessageModelAny(Comunication comunication) {
+    	Vector<Address> cluster = this.enderecosModelo;
+    	//Address cluster = null;
+        RequestOptions optinsResponse = new RequestOptions();
+        optinsResponse.setMode(ResponseMode.GET_FIRST);
+        // optionsResponse.setAnycasting(true);
+        optinsResponse.setAnycasting(false);
+        Message newMessage = new Message(null, comunication);
+        RspList<Comunication> responseComunication = null;
+        try {
+            responseComunication = control_modelDispatcher.castMessage(cluster, newMessage, optinsResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+       
+        return responseComunication.getFirst();
+    }
+    
+    private RspList<Comunication> sendMessageModelAll(Comunication comunication){
+    	
+    	Vector<Address> cluster = this.enderecosModelo;
+    	//Address cluster = null;
+        RequestOptions optinsResponse = new RequestOptions();
+        optinsResponse.setMode(ResponseMode.GET_ALL);
+        // optionsResponse.setAnycasting(true);
+        optinsResponse.setAnycasting(true);
+        //Message newMessage = new Message(cluster, comunication);
+        Message newMessage = new Message(null, comunication);
+        RspList<Comunication> responseComunication = null;
+        try {
+            responseComunication = control_modelDispatcher.castMessage(cluster, newMessage, optinsResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+       
+        return responseComunication;
+    }
+    
+    private Comunication sendMessageViewAny(Comunication comunication, ResponseMode mode) {
+    	// TODO Address cluster = enderecosControle;
+    	Address cluster = null;
+        RequestOptions optinsResponse = new RequestOptions();
+        optinsResponse.setMode(mode);
+        // optionsResponse.setAnycasting(true);
+        optinsResponse.setAnycasting(true);
+        Message newMessage = new Message(cluster, comunication);
+        RspList<Comunication> responseComunication = null;
+        try {
+            responseComunication = control_viewDispatcher.castMessage(null, newMessage, optinsResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return responseComunication.getFirst();
     }
 
 }

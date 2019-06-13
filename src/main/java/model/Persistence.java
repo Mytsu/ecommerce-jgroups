@@ -112,21 +112,21 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		if(msg.service == EnumServices.GET_ITENS) {
     			
     			response.service = EnumServices.GET_ITENS;
-    			HashMap<String, Product> var = getItens();
+    			HashMap<String, Product> var = this.getItens();
     			content.add(var);
     		}
     		
     		else if(msg.service == EnumServices.GET_CUSTOMERS) {
     			
     			response.service = EnumServices.GET_CUSTOMERS;
-    			HashMap<String, Customer> var = getCustomers();
+    			HashMap<String, Customer> var = this.getCustomers();
     			content.add(var);
     		}
     		
     		else if(msg.service == EnumServices.GET_SELLERS) {
     			
     			response.service = EnumServices.GET_SELLERS;
-    			HashMap<String, Seller> var = getSellers();
+    			HashMap<String, Seller> var = this.getSellers();
     			content.add(var);
     		}
     		
