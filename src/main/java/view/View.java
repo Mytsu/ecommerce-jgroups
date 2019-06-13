@@ -474,9 +474,11 @@ public class View extends ReceiverAdapter implements RequestHandler{
     }
 
     private static Comunication sendMessage(Comunication comunication) {
-        Address cluster = null;
+    	// TODO Address cluster = enderecosControle;
+    	Address cluster = null;
         RequestOptions optinsResponse = new RequestOptions();
         optinsResponse.setMode(ResponseMode.GET_FIRST);
+        // optionsResponse.setAnycasting(true);
         optinsResponse.setAnycasting(false);
         Message newMessage = new Message(cluster, comunication);
         RspList<Comunication> responseComunication = null;
