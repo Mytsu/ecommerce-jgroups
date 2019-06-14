@@ -116,9 +116,7 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     /////////////////////////////////////////////////////////////////////////////////////////
     
     // Function to add a customer
-    public boolean add_customer(String id, String fullname, String password) {
-
-        Customer customer = new Customer(id, fullname, password);
+    private boolean add_customer(String id, String fullname, String password) {
 
         // Verifica se o cliente existe
         /* OLD
@@ -126,19 +124,38 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
             return false;
         */
         
+    	// Checa se já existe esse cliente
         ArrayList<Object> content = new ArrayList<Object>();
         content.add(id);
         Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.CUSTOMER_EXIST, content);
         comunication = this.sendMessageModelAny(comunication);
         
         if((boolean)comunication.content.get(0) == true) {
-        	
+        	return false;
         }
-
-    
+        
+        // Adiciona ele realmente no modelo
+        Customer customer = new Customer(id, fullname, password);
         customer.funds = INITIALFUNDING;
-        this.customers.add_customer(customer);        
-        return true;
+        
+        comunication = null;
+        content = null; content = new ArrayList<Object>();
+        content.add(customer);
+        comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.SAVE_CUSTOMER, content);
+        
+        //  Abaixo falta colocar em um laço de acordo para todos os modelos falarem que escreveu que
+        //o cliente foi adicionado com o sucesso.
+        
+        RspList<Comunication> responses = this.sendMessageModelAll(comunication);
+        //this.customers.add_customer(customer); OLD
+        
+        boolean bool = true;
+        
+        for (Rsp<Comunication> rsp : responses) {
+			bool = bool & (boolean)rsp.getValue().content.get(0);
+		}
+        
+        return bool;
     }
 
     public boolean login_customer(String customer, String password) {
