@@ -137,9 +137,17 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     	return true;
     }
     
-    private boolean addItem(Product item) {
-    	this.products.add_product(item);
-    	return true;
+    private boolean add_product(String idSeller, String product, Float price, long amount, String description) {
+       
+    	// Verifica se o produto nao esta no hashmap
+        if(!this.products.exists(product))
+            products.add_product(new Product(product, description));
+
+        //Decidir se vai incrementar caso o produto e o vendedor ja exista
+        //Ou se simplesmente vai criar uma nova oferta
+        products.get_product(product).add_offer(new Offer(idSeller, price, amount));
+    	
+        return true;
     }
     
     private boolean confirmLoginCustomer(String customer, String password) {
@@ -223,6 +231,39 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         return true;
     }
     
+    private boolean saveQuestion(Question question, String product) {
+        products.get_product(product).add_question(question);
+    	return true;
+    }
+    
+    private ArrayList<Sell> getBougthItens(String customer) {
+    	return this.customers.get_customer(customer).sell;
+    }
+    
+    private ArrayList<Sell> getSoldItens(String seller) {
+    	return this.sellers.get_seller(seller).sell;
+    }
+    
+    private double getTotalFunds() {
+        double soma = 0.0;
+        for (Entry<String, Customer> entry : this.customers.get_customers().entrySet()) {
+            Customer custom = entry.getValue();
+            soma += custom.get_funds();
+        }
+        
+        for (Entry<String, Seller> entry : this.sellers.get_sellers().entrySet()) {
+            Seller seller = entry.getValue();
+            soma += seller.get_funds();
+        }
+
+        return soma;
+    }
+    
+    private boolean isFundsRight() {
+        if( this.customers.num_customers*1000 == this.getTotalFunds())
+            return true;
+        return false;
+    }
     
     
     // responde requisições recebidas
@@ -301,9 +342,10 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		}
     		
     		else if(msg.service == EnumServices.SAVE_ITEM) {
-    			//	boolean addCustomer(Customer cus)
+    			//	boolean add_product(String idSeller, String product, Float price, long amount, String description)
     			response.service = EnumServices.SAVE_ITEM;
-    			boolean var = this.addItem((Product)msg.content.get(0));
+    			boolean var = this.add_product((String)msg.content.get(0), (String)msg.content.get(1),
+    					(float)msg.content.get(2), (long)msg.content.get(3), (String)msg.content.get(4));
     			content.add(var);
     		}
     		
@@ -345,6 +387,45 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     					(String)msg.content.get(1),(String)msg.content.get(2),(int)msg.content.get(3));
     			content.add(var);
     		}
+    		
+    		else if(msg.service == EnumServices.SAVE_QUESTION) {
+    			//	boolean saveQuestion(Question question, String product)
+    			response.service = EnumServices.SAVE_QUESTION;
+    			boolean var = this.saveQuestion((Question)msg.content.get(0), (String)msg.content.get(1));
+    			content.add(var);
+    		}
+    		
+    		else if(msg.service == EnumServices.GET_BOUGHT_ITENS) {
+    			//	ArrayList<Sell> getBougthItens(String customer)
+    			response.service = EnumServices.GET_BOUGHT_ITENS;
+    			ArrayList<Sell> var = this.getBougthItens((String)msg.content.get(0));
+    			content.add(var);
+    		}
+    		
+    		else if(msg.service == EnumServices.GET_SOLD_ITENS) {
+    			//	ArrayList<Sell> getSoldItens(String seller)
+    			response.service = EnumServices.GET_SOLD_ITENS;
+    			ArrayList<Sell> var = this.getSoldItens((String)msg.content.get(0));
+    			content.add(var);
+    		}
+    		
+    		else if(msg.service == EnumServices.TOTAL_FUNDS_INT) {
+    			//	double get_total_founds()
+    			response.service = EnumServices.TOTAL_FUNDS_INT;
+    			double var = this.getTotalFunds();
+    			content.add(var);
+    		}
+    		
+    		else if(msg.service == EnumServices.TOTAL_FUNDS_BOOL) {
+    			//	boolean is_founds_right()
+    			response.service = EnumServices.TOTAL_FUNDS_BOOL;
+    			boolean var = this.isFundsRight();
+    			content.add(var);
+    		}
+    		
+    		
+    		
+    		
 
     		
     		
