@@ -3,6 +3,7 @@ package model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.jgroups.Address;
 import org.jgroups.JChannel;
@@ -23,10 +24,10 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     private static final long serialVersionUID = 4506509784967298618L;
 	
     private CustomerDAO customers;
-    public SellerDAO sellers;
-    public ProductDAO products;
+    private SellerDAO sellers;
+    private ProductDAO products;
     
-    public JChannel control_modelChannel ;
+    private JChannel control_modelChannel ;
     private MessageDispatcher control_modelDispatcher;
     
     Persistence() throws Exception{
@@ -85,17 +86,144 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         }
         
 
-    private HashMap<String, Product> getItens() {
-    	return products.get_products();
+    private ArrayList<Product> getItens() {
+    	/*	OLD CODE
+    	ArrayList<Product> lista = new ArrayList<Product>();
+        for (Entry<String, Product> entry : this.products.get_products().entrySet()) {
+        	lista.add(entry.getValue());
+        }
+        
+        return lista;
+    	 */
+    	return (ArrayList<Product>) products.get_products().values();
     }
     
-    private HashMap<String, Customer> getCustomers(){
-    	return customers.get_customers();
+    private ArrayList<Customer> getCustomers(){
+    	return (ArrayList<Customer>) customers.get_customers().values();
     }
     
-    private HashMap<String, Seller> getSellers() {
-    	return sellers.get_sellers();
+    private ArrayList<Seller> getSellers() {
+    	return (ArrayList<Seller>) sellers.get_sellers().values();
     }
+    
+    private boolean customerExist(String id) {
+    	if(customers.exists(id)) {
+    		return true;
+    	}
+    	return false;
+    }
+
+    private boolean sellerExist(String id) {
+    	if(sellers.exists(id)) {
+    		return true;
+    	}
+    	return false;
+    }
+    
+    private boolean itemExist(String id) {
+    	if(products.exists(id)) {
+    		return true;
+    	}
+    	return false;
+    }
+    
+    private boolean addCustomer(Customer customer) {
+    	this.customers.add_customer(customer);
+    	return true;
+    }
+    
+    private boolean addSeller(Seller seller) {
+    	this.sellers.add_seller(seller);
+    	return true;
+    }
+    
+    private boolean addItem(Product item) {
+    	this.products.add_product(item);
+    	return true;
+    }
+    
+    private boolean confirmLoginCustomer(String customer, String password) {
+    	if(!this.customers.exists(customer))
+            return false;
+        if(this.customers.get_customer(customer).password != password)
+            return false;
+        return true;
+    }
+    
+    private boolean confirmLoginSeller(String seller, String password) {
+    	if(!this.sellers.exists(seller))
+            return false;
+        if(this.sellers.get_seller(seller).password != password)
+            return false;
+        return true;
+    }
+    
+    private ArrayList<Product> search_product(String string){
+        
+    	ArrayList<Product> lista = new ArrayList<Product>();
+
+        for (Entry<String, Product> entry : this.products.get_products().entrySet()) {
+            String key = entry.getKey();
+            if(key.contains(string)) {
+                Product prod = entry.getValue();
+                lista.add(prod);
+            }
+        }
+        return lista;
+    }
+    
+    private int possibleMakePurchase(String customer, String seller, String product, int amount) {
+      
+    	// Verifica se o produto está no hashmap
+        if(!this.products.exists(product)) {
+            return -1;
+        }
+
+        // Verifica se o cliente existe
+        if(!this.customers.exists(customer)) {
+            return -2;
+        }
+
+        // Verifica se o vendedor existe
+        if(!this.sellers.exists(seller)) {
+            return -3;
+        }
+
+        // Verifica se tem produtos o suficiente do vendedor X
+        if(!this.products.get_product(product).has_enougth(seller, amount)) {
+            return -5;
+        }
+
+        // Pega o preço do produto desta venda referente ao vendedor escolhido pelo cliente
+        double price = this.products.get_product(product).get_price(seller);
+
+        // Verifica se o cliente tem dinheiro o suficiente para comprar
+        if(! (price > this.customers.get_customer(customer).get_funds())) {
+            return -6;
+        }
+        
+        return 0;
+    }
+    
+    private boolean makePurchase(String customer, String seller, String product, int amount) {
+    	
+    	double price = this.products.get_product(product).get_price(seller);
+
+        // Incrementa o valor nos fundos do vendedor
+        this.sellers.add_funds(price*amount, this.sellers.get_seller(seller));   
+        // Deduz o valor nos fundos do cliente
+        this.customers.add_funds(-price*amount, customer);
+
+        // Deduz a quantidade do produto X do vendedor Y
+        this.products.get_product(product).deduce_amount(seller, amount);
+        Sell sell = new Sell(seller, customer, product, price, amount);
+        this.customers.get_customer(customer).add_sell(sell);
+        this.sellers.get_seller(seller).add_sell(sell);
+        
+        return true;
+    }
+    
+    
     
     // responde requisições recebidas
     @Override
@@ -109,33 +237,116 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     	
     	if(msg.channel == EnumChannel.CONTROL_TO_MODEL) {
     		
-    		if(msg.service == EnumServices.GET_ITENS) {
-    			
+    		//	Retorna todos os os itens existentes.
+    		if(msg.service == EnumServices.GET_ITENS) {	
     			response.service = EnumServices.GET_ITENS;
-    			HashMap<String, Product> var = this.getItens();
+    			ArrayList<Product> var = this.getItens();
     			content.add(var);
     		}
     		
+    		//	Retorna todos os os clientes existentes
     		else if(msg.service == EnumServices.GET_CUSTOMERS) {
-    			
     			response.service = EnumServices.GET_CUSTOMERS;
-    			HashMap<String, Customer> var = this.getCustomers();
+    			ArrayList<Customer> var = this.getCustomers();
     			content.add(var);
     		}
     		
+    		//	Retorna todos os os vendedores existentes
     		else if(msg.service == EnumServices.GET_SELLERS) {
-    			
     			response.service = EnumServices.GET_SELLERS;
-    			HashMap<String, Seller> var = this.getSellers();
+    			ArrayList<Seller> var = this.getSellers();
     			content.add(var);
     		}
     		
-    		// Resposta para quando um membro da controle manda um multicast avisando que é novo
+    		//	Resposta para quando um membro da controle manda um multicast avisando que é novo
     		//dai todos os membros do modelo respondem para que ele adicione todos no seu vetor de endereços
     		else if(msg.service == EnumServices.NEW_CONTROL_MEMBER) {
     			response.service = EnumServices.NEW_CONTROL_MEMBER;
     			content = null;
     		}
+    		
+    		else if(msg.service == EnumServices.CUSTOMER_EXIST) {
+    			//	boolean customerExist(String id)
+    			response.service = EnumServices.CUSTOMER_EXIST;
+    			boolean var = this.customerExist((String)msg.content.get(0));
+    			content.add(var);
+    		}
+
+    		else if(msg.service == EnumServices.SELLER_EXIST) {
+    			//	boolean sellerExist(String id)
+    			response.service = EnumServices.SELLER_EXIST;
+    			boolean var = this.sellerExist((String)msg.content.get(0));
+    			content.add(var);
+    		}
+
+    		else if(msg.service == EnumServices.ITEM_EXIST) {
+    			//	boolean itemExist(String id)
+    			response.service = EnumServices.ITEM_EXIST;
+    			boolean var = this.itemExist((String)msg.content.get(0));
+    			content.add(var);
+    		}
+    		
+    		else if(msg.service == EnumServices.SAVE_CUSTOMER) {
+    			//	boolean addCustomer(Customer cus)
+    			response.service = EnumServices.SAVE_CUSTOMER;
+    			boolean var = this.addCustomer((Customer)msg.content.get(0));
+    			content.add(var);
+    		}
+    		
+    		else if(msg.service == EnumServices.SAVE_SELLER) {
+    			//	boolean addCustomer(Customer cus)
+    			response.service = EnumServices.SAVE_SELLER;
+    			boolean var = this.addSeller((Seller)msg.content.get(0));
+    			content.add(var);
+    		}
+    		
+    		else if(msg.service == EnumServices.SAVE_ITEM) {
+    			//	boolean addCustomer(Customer cus)
+    			response.service = EnumServices.SAVE_ITEM;
+    			boolean var = this.addItem((Product)msg.content.get(0));
+    			content.add(var);
+    		}
+    		
+    		else if(msg.service == EnumServices.CONFIRM_LOGIN_CUSTOMER) {
+    			//	boolean confirmLoginCustomer(String customer, String password)
+    			response.service = EnumServices.CONFIRM_LOGIN_CUSTOMER;
+    			boolean var = this.confirmLoginCustomer((String)msg.content.get(0),(String)msg.content.get(1));
+    			content.add(var);
+    		}
+
+    		
+    		else if(msg.service == EnumServices.CONFIRM_LOGIN_SELLER) {
+    			//	boolean confirmLoginSeller(String seller, String password)
+    			response.service = EnumServices.CONFIRM_LOGIN_SELLER;
+    			boolean var = this.confirmLoginSeller((String)msg.content.get(0),(String)msg.content.get(1));
+    			content.add(var);
+    		}
+    		
+
+    		else if(msg.service == EnumServices.MAKE_SEARCH_ITEM) {
+        		//	ArrayList<Product> search_product(String string)
+    			response.service = EnumServices.MAKE_SEARCH_ITEM;
+    			ArrayList<Product> var = this.search_product((String)msg.content.get(0));
+    			content.add(var);
+    		}
+
+    		else if(msg.service == EnumServices.POSSIBLE_MAKE_PURCHASE) {
+        		//	int possibleMakePurchase(String customer, String seller, String product, int amount)
+    			response.service = EnumServices.POSSIBLE_MAKE_PURCHASE;
+    			int var = this.possibleMakePurchase((String)msg.content.get(0),
+    					(String)msg.content.get(1),(String)msg.content.get(2),(int)msg.content.get(3));
+    			content.add(var);
+    		}
+    		
+    		else if(msg.service == EnumServices.MAKE_PURCHASE) {
+        		//	boolean makePurchase(String customer, String seller, String product, int amount)
+    			response.service = EnumServices.MAKE_PURCHASE;
+    			boolean var = this.makePurchase((String)msg.content.get(0),
+    					(String)msg.content.get(1),(String)msg.content.get(2),(int)msg.content.get(3));
+    			content.add(var);
+    		}
+
+    		
     		
     		response.channel = EnumChannel.MODEL_TO_CONTROL;
     		response.content = content;

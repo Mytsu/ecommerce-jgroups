@@ -27,6 +27,9 @@ public enum EnumServices {
 	SAVE_ITEM,
 	SAVE_CUSTOMER,
 	SAVE_SELLER,
+	MAKE_SEARCH_ITEM,
+	POSSIBLE_MAKE_PURCHASE,
+	MAKE_PURCHASE,
 	
 	// Servicos da compra de um produto
 	ITEM_EXIST,

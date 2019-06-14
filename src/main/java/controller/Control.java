@@ -138,12 +138,14 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         Customer customer = new Customer(id, fullname, password);
         customer.funds = INITIALFUNDING;
         
-        comunication = null;
         content = null; content = new ArrayList<Object>();
         content.add(customer);
+        
+        comunication = null;
         comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.SAVE_CUSTOMER, content);
         
-        //  Abaixo falta colocar em um laço de acordo para todos os modelos falarem que escreveu que
+        
+        //	TODO  Abaixo falta colocar em um laço de acordo para todos os modelos falarem que escreveu que
         //o cliente foi adicionado com o sucesso.
         
         RspList<Comunication> responses = this.sendMessageModelAll(comunication);
@@ -158,88 +160,86 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         return bool;
     }
 
-    public boolean login_customer(String customer, String password) {
-        // Verifica se o cliente existe
-        if(!this.customers.exists(customer))
-            return false;
-        if(this.customers.get_customer(customer).password != password)
-            return false;
+    private boolean login_customer(String customer, String password) {
         
-        return true;
+        ArrayList<Object> content = new ArrayList<Object>();
+        content.add(customer);
+        content.add(password);
+        Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, 
+        		EnumServices.CONFIRM_LOGIN_CUSTOMER, content);
+        comunication = this.sendMessageModelAny(comunication);
+        
+        return (boolean)comunication.content.get(0);
     }
 
     // Funcao feita para busca de produtos
-    public ArrayList<Product> search_product(String string) {
+    @SuppressWarnings("unchecked")
+	private ArrayList<Product> search_product(String string) {
         
-        ArrayList<Product> lista = new ArrayList<Product>();
-
-        for (Entry<String, Product> entry : this.products.get_products().entrySet()) {
-            String key = entry.getKey();
-            if(key.contains(string)) {
-                Product prod = entry.getValue();
-                lista.add(prod);
-            }
-        }
-        return lista;
+        ArrayList<Object> content = new ArrayList<Object>();
+        content.add(string);
+        Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, 
+        		EnumServices.MAKE_SEARCH_ITEM, content);
+        comunication = this.sendMessageModelAny(comunication);
+        
+        return (ArrayList<Product>)comunication.content.get(0);
     }
 
-    public int purchase(String customer, String seller, String product, int amount) {
+    private int purchase(String customer, String seller, String product, int amount) {
 
-        // Verifica se o produto está no hashmap
-        if(!this.products.exists(product)) {
-            return -1;
-        }
-
-        // Verifica se o cliente existe
-        if(!this.customers.exists(customer)) {
-            return -2;
-        }
-
-        // Verifica se o vendedor existe
-        if(!this.sellers.exists(seller)) {
-            return -3;
-        }
-
-        // Verifica se a quantidade não é negativa
+        //	Verifica se a quantidade não é negativa
         if(amount <= 0) {
             return -4;
         }
-
-        // Verifica se tem produtos o suficiente do vendedor X
-        if(!this.products.get_product(product).has_enougth(seller, amount)) {
-            return -5;
+    	
+        //	Faz a checagem sobre a compra poder ser feita
+        ArrayList<Object> content = new ArrayList<Object>();
+        content.add(customer);
+        content.add(seller);
+        content.add(product);
+        content.add(amount);
+        Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, 
+        		EnumServices.POSSIBLE_MAKE_PURCHASE, content);
+        comunication = this.sendMessageModelAny(comunication);
+    	
+    	if((int)comunication.content.get(0) != 0) {
+    		return (int)comunication.content.get(0);
+    	}
+    	
+    	
+    	
+    	//	Efetiva de fato a compra
+        comunication = null;
+        comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.MAKE_PURCHASE, content);
+        
+        //	TODO  Abaixo falta colocar em um laço de acordo para todos os modelos falarem que escreveu que
+        //a compra com sucesso.
+        
+        RspList<Comunication> responses = this.sendMessageModelAll(comunication);
+        
+        boolean bool = true;
+        
+        for (Rsp<Comunication> rsp : responses) {
+			bool = bool & (boolean)rsp.getValue().content.get(0);
+		}
+        
+        if(bool) {
+        	return 0;
         }
-
-        // Pega o preço do produto desta venda referente ao vendedor escolhido pelo cliente
-        double price = this.products.get_product(product).get_price(seller);
-
-        // Verifica se o cliente tem dinheiro o suficiente para comprar
-        if(! (price > this.customers.get_customer(customer).get_funds())) {
-            return -6;
-        }
-
-        // Incrementa o valor nos fundos do vendedor
-        this.sellers.add_funds(price*amount, this.sellers.get_seller(seller));   
-        // Deduz o valor nos fundos do cliente
-        this.customers.add_funds(-price*amount, customer);
-
-        // Deduz a quantidade do produto X do vendedor Y
-        this.products.get_product(product).deduce_amount(seller, amount);
-        Sell sell = new Sell(seller, customer, product, price, amount);
-        this.customers.get_customer(customer).add_sell(sell);
-        this.sellers.get_seller(seller).add_sell(sell);
-
-        return 0;
+       	//	-7 seria onde deu algum erro na escrita
+       	return -7;
+    	
     }
 
-    public ArrayList<Product> list_products() {
+    @SuppressWarnings("unchecked")
+	public ArrayList<Product> list_products() {
     	
-    	ArrayList<Product> lista = new ArrayList<Product>();
-        for (Entry<String, Product> entry : this.products.get_products().entrySet()) {
-        	lista.add(entry.getValue());
-        }
+        ArrayList<Object> content = null;
+        Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, 
+        		EnumServices.GET_ITENS, content);
+        comunication = this.sendMessageModelAny(comunication);
         
-        return lista;  	
+        return (ArrayList<Product>)comunication.content.get(0);  	
     }
     
     public boolean sendQuestion(String customer, String product, String msg) {
