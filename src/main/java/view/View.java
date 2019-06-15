@@ -85,7 +85,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        
         enderecosControle = new Vector<Address>();
         
         //this.viewDispatcher = new MessageDispatcher(this.viewChannel, null, null, (RequestHandler) this);
@@ -97,7 +97,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
         this.view_controlChannel.connect("ViewControlChannel");
         
         this.montaGrupo();
-
+        
         do {
             accessSystem();
             if (customer != null) {
@@ -116,18 +116,20 @@ public class View extends ReceiverAdapter implements RequestHandler{
         
         Comunication comunication = new Comunication(EnumChannel.VIEW_TO_CONTROL,EnumServices.NEW_VIEW_MEMBER,null);
         Address cluster = null;
+        //Message msg2 = new Message
         Message newMessage = new Message(cluster, comunication);
-
+        
         RspList<Comunication> list = null;
+        
 		try {
 			list = controlDispatcher.castMessage(null, newMessage, options);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        
+		
         for(Rsp<Comunication> x : list) {
-            if(x.getValue().channel == EnumChannel.CONTROL_TO_VIEW)
+            if(x.getValue()!=null && x.getValue().channel == EnumChannel.CONTROL_TO_VIEW)
                 enderecosControle.add(x.getSender());
         }
         
@@ -164,6 +166,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
         System.out.print("Para voltar ao menu anterior digite: " + EXIT_MENU);
     }
 
+	@SuppressWarnings("unchecked")
 	private static String buyingList() {
     	ArrayList<Object> content = new ArrayList<Object>();
     	content.add(customer);
@@ -173,7 +176,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
         ArrayList<Sell> buyingList = new ArrayList<Sell>();
         buyingList = (ArrayList<Sell>) newComunication.content.get(0);
         System.out.println("");
-        a
+        // TODO a
         return CONTINUE_LOOP;
     }
 
@@ -469,7 +472,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
 
     private static String searchProduct() {
         System.out.println("");
-        a
+        // TODO a
         return CONTINUE_LOOP;
     }
 
@@ -528,7 +531,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
         } while(!option.equals(EMPTY_STRING) && loop.equals(END_LOOP));
         Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.BUY_ITEM, content);
         newComunication = sendMessage(newComunication);
-        a
+        // TODO a
         return CONTINUE_LOOP;
     }
 
@@ -557,7 +560,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
         } while(!option.equals(EMPTY_STRING));
         Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.MAKE_QUESTION, content);
         newComunication = sendMessage(newComunication);
-        a
+        // TODO a
         return CONTINUE_LOOP;
     }
 

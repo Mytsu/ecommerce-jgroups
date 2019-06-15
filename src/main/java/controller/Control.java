@@ -21,9 +21,6 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
 
     private static final double INITIALFUNDING = 1000.0;
 
-    public CustomerDAO customers;
-    public SellerDAO sellers;
-    public ProductDAO products;
     
     public JChannel view_controlChannel;
     public JChannel control_modelChannel;
@@ -33,20 +30,22 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     
     private Vector<Address> enderecosModelo;
     
-    Control() throws Exception {
-    	
-        this.customers = new CustomerDAO();
-        this.sellers = new SellerDAO();
-        this.products = new ProductDAO();
-        
+    public Control() throws Exception {
+
         enderecosModelo = new Vector<Address>();
         
         try {
 			this.view_controlChannel = new JChannel("view_control.xml");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        
+        try {
 			this.control_modelChannel = new JChannel("control_model.xml");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+//		this.control_modelChannel = new JChannel("control_model.xml");
         
         this.view_controlChannel.setReceiver(this);
         this.control_modelChannel.setReceiver(this);
@@ -81,7 +80,7 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
 		}
         
         for(Rsp<Comunication> x : list) {
-            if(x.getValue().channel == EnumChannel.MODEL_TO_CONTROL)
+            if(x.getValue()!=null && x.getValue().channel == EnumChannel.MODEL_TO_CONTROL)
                 enderecosModelo.add(x.getSender());
         }
         
@@ -315,7 +314,7 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
 
     
     // Function to add a seller
-    public boolean add_seller(String id, String fullname, String password) {
+    private boolean add_seller(String id, String fullname, String password) {
         
         ArrayList<Object> content = new ArrayList<Object>();
         content.add(id);
@@ -352,7 +351,7 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         return bool;
     }
 
-    public boolean login_seller(String seller, String password) {
+    private boolean login_seller(String seller, String password) {
 
         ArrayList<Object> content = new ArrayList<Object>();
         content.add(seller);
@@ -364,7 +363,7 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         return (boolean)comunication.content.get(0);
     }
 
-    public int add_product(String idSeller, String product, Float price, long amount, String description) {
+    private int add_product(String idSeller, String product, Float price, long amount, String description) {
         //Checa se a quantidade e maior que 0
         if(amount <= 0) {
             return -1;
@@ -412,25 +411,25 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         return -4;
     }
 
-    public boolean sendAnswer(String seller, String product, String question, String answer) {
+    private boolean sendAnswer(String seller, String product, String question, String answer) {
     	
     	boolean retorno = false;
     	
-    	if(!products.exists(product)) {
-    		return false;
-    	}
+    	//if(!products.exists(product)) {
+    		//return false;
+    	//}
     	
     	Answer response = new Answer(seller, answer);
     	
-    	if(products.get_product(product).add_answer(response)) {
-    		return true;
-    	}
+    	//if(products.get_product(product).add_answer(response)) {
+    		//return true;
+    	//}
     	
     	return retorno;
     }
     
     @SuppressWarnings("unchecked")
-	public ArrayList<Sell> getSoldItens(String seller){
+    private ArrayList<Sell> getSoldItens(String seller){
     	
         ArrayList<Object> content = new ArrayList<Object>();
         
@@ -455,7 +454,7 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     /////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
 
-    public double getTotalFunds() {
+    private double getTotalFunds() {
         ArrayList<Object> content = null;
         
         Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.TOTAL_FUNDS_INT, content);
@@ -464,7 +463,7 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         return (double) comunication.content.get(0);
     }
 
-    public boolean isFundsRight() {
+    private boolean isFundsRight() {
         ArrayList<Object> content = null;
         
         Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.TOTAL_FUNDS_BOOL, content);
@@ -554,7 +553,7 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     		
     		else if(msg.service == EnumServices.LOGIN_SELLER) {
     			//boolean login_seller(String seller, String password)
-    			boolean var = this.login_customer((String)msg.content.get(0),(String)msg.content.get(1));
+    			boolean var = this.login_seller((String)msg.content.get(0),(String)msg.content.get(1));
     			content.add(var);
     			response.service = EnumServices.LOGIN_SELLER;    			
     		}

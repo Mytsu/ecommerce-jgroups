@@ -30,7 +30,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     private JChannel control_modelChannel ;
     private MessageDispatcher control_modelDispatcher;
     
-    Persistence() throws Exception{
+    public Persistence() throws Exception{
     	
         this.customers = new CustomerDAO();
         this.sellers = new SellerDAO();
@@ -50,6 +50,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         this.control_modelChannel.connect("ControlModelChannel");
         
         this.montaGrupo();
+        System.out.println("Passow aq");
         
     }
     
@@ -85,7 +86,6 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
             System.out.println("" + msg.getSrc() + ": " + msg.getObject()+"(1)");
         }
         
-
     private ArrayList<Product> getItens() {
     	/*	OLD CODE
     	ArrayList<Product> lista = new ArrayList<Product>();

@@ -1,9 +1,11 @@
 package system;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Comunication {
+public class Comunication implements Serializable{
 
+	private static final long serialVersionUID = -585749592930578838L;
 	public EnumChannel channel;
 	public EnumServices service;
 	public ArrayList<Object> content;
