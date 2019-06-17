@@ -7,12 +7,9 @@ import java.util.Map.Entry;
 //import java.util.Properties;
 //import java.io.FileReader;
 
-import javax.swing.text.AbstractDocument.Content;
-
 import org.jgroups.Address;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
-import org.jgroups.Receiver;
 import org.jgroups.ReceiverAdapter;
 import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestHandler;
@@ -54,6 +51,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
     private static final String EMPTY_STRING = "";
     private static final String END_LOOP = "0";
     private static final String EXIT_MENU = "sair";
+    private static final int MAX_OF_ATTEMPTS = 3;
     // ACCESS SYSTEM OPTIONS:
     private static final String CREATE_ACCOUNT = "1";
     private static final String LOGIN_ACCOUNT = "2";
@@ -75,6 +73,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
     private static MessageDispatcher controlDispatcher;
     
     private Vector<Address> enderecosControle;
+    
 
     public View() throws Exception {
         try {
@@ -108,6 +107,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
         } while(customer.equals(null) && seller.equals(null));
         System.out.println("Adios");
     }
+    
 
     private void montaGrupo() {
     	RequestOptions options = new RequestOptions();
@@ -127,14 +127,13 @@ public class View extends ReceiverAdapter implements RequestHandler{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
         for(Rsp<Comunication> x : list) {
             if(x.getValue()!=null && x.getValue().channel == EnumChannel.CONTROL_TO_VIEW)
                 enderecosControle.add(x.getSender());
         }
-        
     	return;
     }
+    
     
     private static void accessSystem() {
         customer = null;
@@ -145,7 +144,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
             loop = CONTINUE_LOOP;
             clearScreen();
             if (!option.equals(CREATE_ACCOUNT) && !option.equals(LOGIN_ACCOUNT)) {
-                invalidOptionMessage();
+                ErrorMessage.invalidOptionMessage();
             }
             System.out.println("=== Bem vindx ao SD e-Commerce ===");
             System.out.println(CREATE_ACCOUNT + " - Para criar conta");
@@ -161,12 +160,13 @@ public class View extends ReceiverAdapter implements RequestHandler{
         } while (!option.equals(CREATE_ACCOUNT) && !option.equals(LOGIN_ACCOUNT) && !option.equals(EXIT_SYSTEM)
                 || loop == END_LOOP);
     }
+    
 
     private static void backMessage() {
-        System.out.print("Para voltar ao menu anterior digite: " + EXIT_MENU);
+        System.out.println("Para voltar ao menu anterior digite: " + EXIT_MENU);
     }
 
-	@SuppressWarnings("unchecked")
+    
 	private static String buyingList() {
     	ArrayList<Object> content = new ArrayList<Object>();
     	content.add(customer);
@@ -179,22 +179,24 @@ public class View extends ReceiverAdapter implements RequestHandler{
         // TODO a
         return CONTINUE_LOOP;
     }
+	
 
     private static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
 
+    
     private static String createAccount() {
         Boolean userNotExist = true;
         Boolean passwordMatch = true;
         do {
             clearScreen();
             if (!passwordMatch) {
-                passwordConfirmErrorMessage();
+                ErrorMessage.passwordConfirmErrorMessage();
             }
             if (!userNotExist) {
-                userAlreadyExistErrorMessage();
+                ErrorMessage.userAlreadyExistErrorMessage();
             }
             passwordMatch = true;
             System.out.println("========== CRIANDO CONTA ==========");
@@ -233,50 +235,17 @@ public class View extends ReceiverAdapter implements RequestHandler{
         } while (!userNotExist || !passwordMatch);
         return CONTINUE_LOOP;
     }
-
-    private static void invalidOptionMessage() {
-        System.out.println("Opção inválida!\nPor favor entre com uma opção válida");
-    }
-
+    
+    
     private static String listAllProducts() {
         clearScreen();
-        Boolean productIndexExist = true;
-        ArrayList<Object> listOfProducts = printAndStoreProductList();
+        ArrayList<Object> listOfProducts = getListAllProducts();
         if(listOfProducts.size() > 0) {
-            String option = ACCEPT_CHAR;
-            String loop = CONTINUE_LOOP;
-            do {
-                if (!option.equals(CREATE_ACCOUNT) && !option.equals(LOGIN_ACCOUNT)) {
-                    invalidOptionMessage();
-                } else if(!productIndexExist) {
-                    productIndexOutOfRangeMessage();
-                }
-                productIndexExist = true;
-                listOfProducts = printAndStoreProductList();
-                System.out.println("Deseja comprar algum dos itens?(" + ACCEPT_CHAR + "/" + DECLINE_CHAR + "): ");
-                selectOption = new Scanner(System.in);
-                option = selectOption.nextLine();
-                if(option.equals(ACCEPT_CHAR)) {
-                    System.out.println("Informe o indice que aparece no inicio do produto: ");
-                    selectOption = new Scanner(System.in);
-                    int indexProduct = selectOption.nextInt();
-                    if(indexProduct < 0 || indexProduct >= listOfProducts.size()) {
-                        productIndexExist = false;
-                    } else{
-                        Product specificProduct = (Product)listOfProducts.get(indexProduct);
-                        loop = specificProductScreen(specificProduct);
-                    }
-                }
-            } while(!option.equals(ACCEPT_CHAR) && !option.equals(DECLINE_CHAR) && !productIndexExist || loop == END_LOOP);
-        } else{
-            listOfProductsEmptyMessage();
+        	shopOptionsProduct(listOfProducts);
         }
         return CONTINUE_LOOP;
     }
-
-    private static void listOfProductsEmptyMessage() {
-        System.out.println("Nenhum produto foi anunciado até o momento!");
-    }
+    
 
     private static String login() {
         String option = LOGIN_COSTUMER;
@@ -303,13 +272,14 @@ public class View extends ReceiverAdapter implements RequestHandler{
         } while (!option.equals(LOGIN_COSTUMER) && !option.equals(LOGIN_SELLER) || loop == END_LOOP);
         return END_LOOP;
     }
+    
 
     private static String loginCustomer() {
         Boolean confirmLogin = true;
         do {
             clearScreen();
             if (!confirmLogin) {
-                loginErrorMessage();
+                ErrorMessage.loginErrorMessage();
             }
             System.out.println("== ACESSAR CONTA DE CONSUMIDOR ==");
             backMessage();
@@ -334,17 +304,14 @@ public class View extends ReceiverAdapter implements RequestHandler{
         } while (!confirmLogin);
         return END_LOOP;
     }
-
-    private static void loginErrorMessage() {
-        System.out.println("Usuário/senha inválido(s)");
-    }
+    
 
     private static String loginSeller() {
         Boolean confirmLogin = true;
         do {
             clearScreen();
             if (!confirmLogin) {
-                loginErrorMessage();
+                ErrorMessage.loginErrorMessage();
             }
             System.out.println("=== ACESSAR CONTA DE VENDEDOR ===");
             backMessage();
@@ -370,6 +337,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
         } while (!confirmLogin);
         return END_LOOP;
     }
+    
 
     private static void menuCustomer() {
         String option = LOGIN_COSTUMER;
@@ -399,6 +367,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
             }
         } while (!option.equals(LIST_PRODUCTS) && !option.equals(SEARCH_PRODUCT) && !option.equals(BUYING_LIST) || loop == END_LOOP);
     }
+    
 
     private static void menuSeller() {
         /*
@@ -406,21 +375,18 @@ public class View extends ReceiverAdapter implements RequestHandler{
          */
         System.out.println("");
     }
+      
 
-    private static void passwordConfirmErrorMessage() {
-        System.out.println("As senhas informadas não são iguais!");
-    }
-
-    private static ArrayList<Object> printAndStoreProductList() {
+    private static ArrayList<Object> getListAllProducts() {
         Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.LIST_ITENS, null);
         newComunication = sendMessage(newComunication);
-        ArrayList<Object> listOfProducts = (ArrayList<Object>)newComunication.content;
-        for(int i = 0; i < listOfProducts.size(); i++) {
-            String index = String.valueOf(i);
-            System.out.println(index+"\t-- " + listOfProducts.get(i));
+        ArrayList<Object> listOfProducts = (ArrayList<Object>)newComunication.content.get(0);
+        if(listOfProducts.size() == 0) {
+        	ErrorMessage.noItemsFound();
         }
         return listOfProducts;
     }
+    
 
     private static void printSpecificProductComplete(Product specificProduct) {
         System.out.println(specificProduct.id);
@@ -440,6 +406,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
         }
         System.out.println("============= FIM FAQ =============");
     }
+    
 
     private static void printSpecificProductWithoutFAQ(Product specificProduct) {
         System.out.println(specificProduct.id);
@@ -453,6 +420,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
         }
         System.out.println("=========== FIM OFERTAS ===========");
     }
+    
 
     private static void printSpecificProductWithoutOffers(Product specificProduct) {
         System.out.println(specificProduct.id);
@@ -465,16 +433,61 @@ public class View extends ReceiverAdapter implements RequestHandler{
         }
         System.out.println("============= FIM FAQ =============");
     }
-
-    private static void productIndexOutOfRangeMessage() {
-        System.out.println("Index do produto não existe!");
+    
+    
+    private static void printProductList(ArrayList<Object> listOfProducts) {
+        for(int i = 0; i < listOfProducts.size(); i++) {
+            String index = String.valueOf(i);
+            System.out.println(index+"\t-- " + listOfProducts.get(i));
+        }
     }
+    
 
     private static String searchProduct() {
-        System.out.println("");
-        // TODO a
+    	/* 
+         * Pesquisar produto:
+         * ArrayList<Product> search_product(String string)
+         */
+        ArrayList<Object> content = new ArrayList<Object>();
+        int amountBought;
+        String option = EMPTY_STRING;
+        String loop = CONTINUE_LOOP;
+        String productName = EMPTY_STRING;  
+        do {
+            content.clear();
+            System.out.println("Informe o nome do produto que deseja buscar: ");
+            backMessage();
+            selectOption = new Scanner(System.in);
+            option = selectOption.nextLine();
+            if (option.equals(EXIT_MENU)) {
+                break;
+            }
+            productName = option;
+            content.add(productName);
+        } while(!option.equals(EMPTY_STRING));
+        // TODO Conferir se está correta essa atribuição - BUSCA DE PRODUTO
+        int attempts = 0;
+        loop = CONTINUE_LOOP;
+        Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.SEARCH_ITEM, content);
+        while ((loop.equals(CONTINUE_LOOP)) && (attempts < MAX_OF_ATTEMPTS)){
+        	try {
+                newComunication = sendMessage(newComunication);
+                loop = END_LOOP;
+            } catch(Exception e) {
+            	attempts++;
+            }
+        }
+        // =============================================
+        ArrayList<Object> searchItems = (ArrayList<Object>)newComunication.content.get(0);
+        if (searchItems.size() == 0){
+        	ErrorMessage.noItemsFound();
+        } else {
+        	printProductList(searchItems);
+        	shopOptionsProduct(searchItems);
+        }
         return CONTINUE_LOOP;
     }
+    
 
     private static Comunication sendMessage(Comunication comunication) {
     	// TODO Address cluster = enderecosControle;
@@ -492,6 +505,37 @@ public class View extends ReceiverAdapter implements RequestHandler{
         }
         return responseComunication.getFirst();
     }
+    
+    
+    private static void shopOptionsProduct(ArrayList<Object> listOfProducts) {
+    	Boolean productIndexExist = true;
+        String option = ACCEPT_CHAR;
+        String loop = CONTINUE_LOOP;
+        do {
+            if (!option.equals(ACCEPT_CHAR) && !option.equals(DECLINE_CHAR)) {
+                ErrorMessage.invalidOptionMessage();
+            } else if(!productIndexExist) {
+                ErrorMessage.productIndexOutOfRangeMessage();
+            }
+            productIndexExist = true;
+            printProductList(listOfProducts);
+            System.out.println("Deseja comprar algum dos itens?(" + ACCEPT_CHAR + "/" + DECLINE_CHAR + "): ");
+            selectOption = new Scanner(System.in);
+            option = selectOption.nextLine();
+            if(option.equals(ACCEPT_CHAR)) {
+                System.out.println("Informe o indice que aparece no inicio do produto: ");
+                selectOption = new Scanner(System.in);
+                int indexProduct = selectOption.nextInt();
+                if(indexProduct < 0 || indexProduct >= listOfProducts.size()) {
+                    productIndexExist = false;
+                } else{
+                    Product specificProduct = (Product)listOfProducts.get(indexProduct);
+                    loop = specificProductScreen(specificProduct);
+                }
+            }
+        } while(!option.equals(ACCEPT_CHAR) && !option.equals(DECLINE_CHAR) && !productIndexExist || loop == END_LOOP);
+    }
+    
 
     private static String specificProductPurchase(Product specificProduct) {
         /* 
@@ -529,11 +573,22 @@ public class View extends ReceiverAdapter implements RequestHandler{
                 }
             }
         } while(!option.equals(EMPTY_STRING) && loop.equals(END_LOOP));
+        // TODO Conferir se está correta essa atribuição - COMPRA
+        int attempts = 0;
+        loop = CONTINUE_LOOP;
         Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.BUY_ITEM, content);
-        newComunication = sendMessage(newComunication);
-        // TODO a
+        while ((loop.equals(CONTINUE_LOOP)) && (attempts < MAX_OF_ATTEMPTS)){
+        	try {
+                newComunication = sendMessage(newComunication);
+                loop = END_LOOP;
+            } catch(Exception e) {
+            	attempts++;
+            }
+        }
+        // =============================================
         return CONTINUE_LOOP;
     }
+    
 
     private static String specificProductQuestion(Product specificProduct) {
         /* 
@@ -558,11 +613,22 @@ public class View extends ReceiverAdapter implements RequestHandler{
             question = option;
             content.add(question);
         } while(!option.equals(EMPTY_STRING));
+        // TODO Conferir se está correta essa atribuição - PERGUNTA
+        int attempts = 0;
+        String loop = CONTINUE_LOOP;
         Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.MAKE_QUESTION, content);
-        newComunication = sendMessage(newComunication);
-        // TODO a
+        while ((loop.equals(CONTINUE_LOOP)) && (attempts < MAX_OF_ATTEMPTS)){
+        	try {
+                newComunication = sendMessage(newComunication);
+                loop = END_LOOP;
+            } catch(Exception e) {
+            	attempts++;
+            }
+        }
+        // =============================================
         return CONTINUE_LOOP;
     }
+    
 
     private static String specificProductScreen(Product specificProduct) {
         String option = MAKE_PURCHASE;
@@ -584,14 +650,12 @@ public class View extends ReceiverAdapter implements RequestHandler{
         } while(!option.equals(MAKE_PURCHASE) && !option.equals(MAKE_QUESTION) || loop.equals(END_LOOP));
         return CONTINUE_LOOP;
     }
-
-    private static void userAlreadyExistErrorMessage() {
-        System.out.println("Usuário já existe, por favor escolha um diferente!");
-    }
+    
 
     private static void userCreationSuccessMessage() {
         System.out.println("Usuário criado com sucesso!");
     }
+    
 
     // responde requisições recebidas
     @Override
@@ -605,24 +669,18 @@ public class View extends ReceiverAdapter implements RequestHandler{
     	Comunication response = new Comunication();
     	
     	//ArrayList<Object> content = new ArrayList<Object>();
-    
+  
     	if(msg.channel == EnumChannel.VIEW_TO_CONTROL) {
-    		
     		if(msg.service == EnumServices.NEW_VIEW_MEMBER) {
         		response.channel = EnumChannel.VIEW_TO_VIEW;
         		response.service = EnumServices.NEW_VIEW_MEMBER;
         		response.content = null;
-        	}
-    		
-    	}
-    	
-    	else if(msg.channel == EnumChannel.CONTROL_TO_VIEW) {
-    		
+        	}	
+    	} else if(msg.channel == EnumChannel.CONTROL_TO_VIEW) {
     		if(msg.service == EnumServices.NEW_CONTROL_MEMBER) {
     			this.enderecosControle.add(message.getSrc());
     			return null;
-    		}
-    		
+    		}	
     	}
     
 
@@ -639,5 +697,6 @@ public class View extends ReceiverAdapter implements RequestHandler{
     	
     	return response;
     }
+    
     
 }
