@@ -17,7 +17,8 @@ public class App {
         	else if(args[0].equals("-c"))
         		new Control();
         	else if(args[0].equals("-m"))
-        		new Persistence();
+                new Persistence();
+            else new View();
         }
         catch (Exception e) {
             // do nothing
