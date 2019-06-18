@@ -497,7 +497,10 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
 		chegou e tratá-la conforme o caso. DICA: o objeto colocado dentro da
 		Message poderia ser um registro contendo vários campos, para facilitar
 	*/
+    	
     	Comunication msg = (Comunication) message.getObject();
+    	
+    	System.out.println("Chegou a mensagem pro controle:\n" + (Comunication)msg);
     	
     	Comunication response = new Comunication();
     	

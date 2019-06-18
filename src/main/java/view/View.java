@@ -666,6 +666,9 @@ public class View extends ReceiverAdapter implements RequestHandler{
 		Message poderia ser um registro contendo vários campos, para facilitar
 	*/
     	Comunication msg = (Comunication) message.getObject();
+    	
+    	System.out.println("Chegou a mensagem pra visão:" + (Comunication)msg);
+    	
     	Comunication response = new Comunication();
     	
     	//ArrayList<Object> content = new ArrayList<Object>();

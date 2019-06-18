@@ -271,6 +271,8 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     public Object handle(Message message) throws Exception{
     	
     	Comunication msg = (Comunication)message.getObject();    	
+    	
+    	System.out.println("Chegou a mensagem pra persistencia \n:" + (Comunication)msg);
         
     	Comunication response = new Comunication();
     		

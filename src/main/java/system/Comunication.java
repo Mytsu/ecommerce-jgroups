@@ -5,6 +5,11 @@ import java.util.ArrayList;
 
 public class Comunication implements Serializable{
 
+	@Override
+	public String toString() {
+		return "Comunication [channel=" + channel + ", service=" + service + ", content=" + content + "]";
+	}
+
 	private static final long serialVersionUID = -585749592930578838L;
 	public EnumChannel channel;
 	public EnumServices service;
