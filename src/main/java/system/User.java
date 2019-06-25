@@ -1,8 +1,11 @@
 package system;
 
 import java.util.ArrayList;
+import java.io.Serializable;
 
-public class User {
+public class User implements Serializable {
+
+    private static final long serialVersionUID = -585749592930578838L;
     public final String id;
     public String username, fullname, password;
     public ArrayList<Sell> sell;

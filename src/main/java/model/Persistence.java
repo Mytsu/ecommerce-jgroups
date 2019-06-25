@@ -50,8 +50,6 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         this.control_modelChannel.connect("ControlModelChannel");
         
         this.montaGrupo();
-        System.out.println("Passow aq");
-        
     }
     
     private void montaGrupo() {
@@ -263,16 +261,16 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         if( this.customers.num_customers*1000 == this.getTotalFunds())
             return true;
         return false;
-    }
+	}
     
     
     // responde requisições recebidas
     @Override
-    public Object handle(Message message) throws Exception{
+    public Object handle(Message message) { //throws Exception {
     	
+    	System.out.println("Chegou a mensagem pra persistencia: " + message.getObject());
     	Comunication msg = (Comunication)message.getObject();    	
     	
-    	System.out.println("Chegou a mensagem pra persistencia \n:" + (Comunication)msg);
         
     	Comunication response = new Comunication();
     		
@@ -330,10 +328,12 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		}
     		
     		else if(msg.service == EnumServices.SAVE_CUSTOMER) {
-    			//	boolean addCustomer(Customer cus)
-    			response.service = EnumServices.SAVE_CUSTOMER;
-    			boolean var = this.addCustomer((Customer)msg.content.get(0));
-    			content.add(var);
+				//	boolean addCustomer(Customer cus)
+				System.out.println("OLA FILHO DEW UMA PUTA VAI TOMAR NO CU");
+				response.service = EnumServices.SAVE_CUSTOMER;
+				content.add(true);
+    			//boolean var = this.addCustomer((Customer)msg.content.get(0));
+    			//content.add(var);
     		}
     		
     		else if(msg.service == EnumServices.SAVE_SELLER) {
@@ -456,10 +456,14 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
             //return "SIM (1)"; //resposta à requisição contida na mensagem
           //else
           //  return " NÃO (1)";
+		
+			  
+		System.out.println(response);
         
-        
-        	return response;
-        }
+        return response;
+	}
+		
+
 
 		
 }

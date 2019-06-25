@@ -113,6 +113,20 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     /////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
     
+    private boolean add_customer21(String id){
+        ArrayList<Object> content = new ArrayList<Object>();
+        content.add(id);
+        Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.CUSTOMER_EXIST, content);
+        comunication = this.sendMessageModelAny(comunication);
+        
+        System.out.println((boolean)comunication.content.get(0));
+
+        if((boolean)comunication.content.get(0) == true) {
+        	return false;
+        }
+        return true;
+    }
+
     // Function to add a customer
     private boolean add_customer(String id, String fullname, String password) {
 
@@ -123,30 +137,37 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         */
         
     	// Checa se já existe esse cliente
-        ArrayList<Object> content = new ArrayList<Object>();
-        content.add(id);
-        Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.CUSTOMER_EXIST, content);
-        comunication = this.sendMessageModelAny(comunication);
+        // ArrayList<Object> content = new ArrayList<Object>();
+        // content.add(id);
+        // Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.CUSTOMER_EXIST, content);
+        // comunication = this.sendMessageModelAny(comunication);
         
-        if((boolean)comunication.content.get(0) == true) {
-        	return false;
+        // System.out.println((boolean)comunication.content.get(0));
+
+        // if((boolean)comunication.content.get(0) == true) {
+        // 	return false;
+        // }
+
+        if (! this.add_customer21(id)){
+            return false;
         }
         
         // Adiciona ele realmente no modelo
         Customer customer = new Customer(id, fullname, password);
         customer.funds = INITIALFUNDING;
         
-        content = null; content = new ArrayList<Object>();
-        content.add(customer);
-        
-        comunication = null;
-        comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.SAVE_CUSTOMER, content);
+        ArrayList<Object> content2 = new ArrayList<Object>();
+        //content2.add(customer);
+        content2.add("customer string");
+
+        Comunication comunication2 = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.SAVE_CUSTOMER, content2);
         
         
         //	TODO  Abaixo falta colocar em um laço de acordo para todos os modelos falarem que escreveu que
         //o cliente foi adicionado com o sucesso.
         
-        RspList<Comunication> responses = this.sendMessageModelAll(comunication);
+        RspList<Comunication> responses = this.sendMessageModelAll(comunication2);
+        //Comunication responses = this.sendMessageModelAny(comunication);
         //this.customers.add_customer(customer); OLD
         
         boolean bool = true;
@@ -491,7 +512,7 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
 
     // responde requisições recebidas
     @Override
-    public Object handle(Message message) throws Exception{
+    public Object handle(Message message) { //} throws Exception{
 
 	/*  No trabalho, vocês deverão verificar qual o tipo de mensagem requisitativa
 		chegou e tratá-la conforme o caso. DICA: o objeto colocado dentro da
@@ -529,7 +550,7 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     			boolean var = this.add_customer((String)msg.content.get(0),(String)msg.content.get(1),
     					(String)msg.content.get(2));
     			content.add(var);
-    			response.service = EnumServices.CREATE_CUSTOMER;
+                response.service = EnumServices.CREATE_CUSTOMER;
     		}
     		
     		else if(msg.service == EnumServices.CREATE_SELLER) {
@@ -662,16 +683,18 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     }
     
     private Comunication sendMessageModelAny(Comunication comunication) {
+        System.out.println("MENSAGEM PRO DESGRAÇADO DO MODELO1: " + comunication);
     	Vector<Address> cluster = this.enderecosModelo;
     	//Address cluster = null;
         RequestOptions optinsResponse = new RequestOptions();
         optinsResponse.setMode(ResponseMode.GET_FIRST);
         // optionsResponse.setAnycasting(true);
-        optinsResponse.setAnycasting(false);
+        optinsResponse.setAnycasting(true);
         Message newMessage = new Message(null, comunication);
         RspList<Comunication> responseComunication = null;
         try {
             responseComunication = control_modelDispatcher.castMessage(cluster, newMessage, optinsResponse);
+            System.out.println(responseComunication);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -679,8 +702,10 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         return responseComunication.getFirst();
     }
     
-    private RspList<Comunication> sendMessageModelAll(Comunication comunication){
-    	
+    private RspList<Comunication> sendMessageModelAll(Comunication comunication) {
+
+        System.out.println("MENSAGEM PRO DESGRAÇADO DO MODELO2: " + comunication);
+
     	Vector<Address> cluster = this.enderecosModelo;
     	//Address cluster = null;
         RequestOptions optinsResponse = new RequestOptions();
@@ -692,28 +717,11 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         RspList<Comunication> responseComunication = null;
         try {
             responseComunication = control_modelDispatcher.castMessage(cluster, newMessage, optinsResponse);
+            System.out.println(responseComunication);
         } catch (Exception e) {
             e.printStackTrace();
         }
-       
         return responseComunication;
-    }
-    
-    private Comunication sendMessageViewAny(Comunication comunication, ResponseMode mode) {
-    	// TODO Address cluster = enderecosControle;
-    	Address cluster = null;
-        RequestOptions optinsResponse = new RequestOptions();
-        optinsResponse.setMode(mode);
-        // optionsResponse.setAnycasting(true);
-        optinsResponse.setAnycasting(true);
-        Message newMessage = new Message(cluster, comunication);
-        RspList<Comunication> responseComunication = null;
-        try {
-            responseComunication = control_viewDispatcher.castMessage(null, newMessage, optinsResponse);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return responseComunication.getFirst();
     }
 
 }
