@@ -44,7 +44,7 @@
         {
             "label": "Rodar Model",
             "type": "shell",
-            "command": "mvn exec:java -Dexec.args='-m ' 2> /dev/null",
+            "command": "mvn exec:java -Dexec.args='-m' 2> /dev/null",
             "problemMatcher": []
         }
         

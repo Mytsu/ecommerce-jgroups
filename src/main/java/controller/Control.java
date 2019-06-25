@@ -149,17 +149,19 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         
         //	TODO  Abaixo falta colocar em um laço de acordo para todos os modelos falarem que escreveu que
         //o cliente foi adicionado com o sucesso.
-        
+        System.out.println("Passei 1");
         RspList<Comunication> responses = this.sendMessageModelAll(comunication2);
         //Comunication responses = this.sendMessageModelAny(comunication);
         //this.customers.add_customer(customer); OLD
-        
+        System.out.println("Passei 2");
         boolean bool = true;
         
         for (Rsp<Comunication> rsp : responses) {
 			bool = bool & (boolean)rsp.getValue().content.get(0);
 		}
-        
+        System.out.println("Passei 3");
+        System.out.println(bool);
+
         return bool;
     }
 
@@ -702,7 +704,9 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         //return "SIM (1)"; //resposta à requisição contida na mensagem
       //else
       //  return " NÃO (1)";
-    	
+        
+        System.out.println("Response = "+response);
+
     	return response;
     }
     

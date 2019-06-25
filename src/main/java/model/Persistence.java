@@ -44,8 +44,9 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         
         // Tive que colocar o throws para nao ter que dar try catch abaixo
         this.control_modelChannel.connect("ControlModelChannel");
-        
-        this.montaGrupo();
+        System.out.println("Passei 1");
+		this.montaGrupo();
+		System.out.println("Passei 2");
     }
     
     private void montaGrupo() {
@@ -153,7 +154,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     private boolean confirmLoginCustomer(String customer, String password) {
     	if(!this.customers.exists(customer))
             return false;
-        if(this.customers.get_customer(customer).password != password)
+        if(!this.customers.get_customer(customer).password.equals(password))
             return false;
         return true;
     }
@@ -347,7 +348,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		else if(msg.service == EnumServices.SAVE_CUSTOMER) {
 				//	boolean addCustomer(Customer cus)
 				response.service = EnumServices.SAVE_CUSTOMER;
-				content.add(true);
+				//content.add(true);
     			boolean var = this.addCustomer((Customer)msg.content.get(0));
     			content.add(var);
     		}
@@ -371,7 +372,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     			//	boolean confirmLoginCustomer(String customer, String password)
     			response.service = EnumServices.CONFIRM_LOGIN_CUSTOMER;
     			boolean var = this.confirmLoginCustomer((String)msg.content.get(0),(String)msg.content.get(1));
-    			content.add(var);
+				content.add(var);
     		}
 
     		
@@ -416,7 +417,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		else if(msg.service == EnumServices.SAVE_ANSWER) {
     			//	boolean saveAnswer(String product, String question, String seller, String answer)
     			response.service = EnumServices.SAVE_QUESTION;
-				boolean var = this.saveAnswer((Question)msg.content.get(0), (String)msg.content.get(1),
+				boolean var = this.saveAnswer((String)msg.content.get(0), (String)msg.content.get(1),
 				(String)msg.content.get(2), (String)msg.content.get(3));
     			content.add(var);
     		}

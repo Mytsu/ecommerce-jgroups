@@ -35,8 +35,8 @@ public class View extends ReceiverAdapter implements RequestHandler{
 	 */
 	
 	private static Scanner selectOption;
-    private static String customer = null;
-    private static String seller = null;
+    private static String customer = "";
+    private static String seller = "";
 
     
     //private static final String VIEW_PROPERTIES = "View.properties";
@@ -72,10 +72,13 @@ public class View extends ReceiverAdapter implements RequestHandler{
     //private static MessageDispatcher viewDispatcher;
     private static MessageDispatcher controlDispatcher;
     
-    private Vector<Address> enderecosControle;
+    private static Vector<Address> enderecosControle;
     
 
     public View() throws Exception {
+        
+        enderecosControle = new Vector<Address>();
+        
         try {
             //reader = new FileReader(VIEW_PROPERTIES);  
             //p.load(reader);
@@ -85,7 +88,6 @@ public class View extends ReceiverAdapter implements RequestHandler{
             e.printStackTrace();
         }
         
-        enderecosControle = new Vector<Address>();
         
         //this.viewDispatcher = new MessageDispatcher(this.viewChannel, null, null, (RequestHandler) this);
         controlDispatcher = new MessageDispatcher(this.view_controlChannel, null, null, this);
@@ -96,15 +98,16 @@ public class View extends ReceiverAdapter implements RequestHandler{
         this.view_controlChannel.connect("ViewControlChannel");
         
         this.montaGrupo();
-        
+
+        String loop = CONTINUE_LOOP;
         do {
-            accessSystem();
+            loop = accessSystem();
             if (customer != null) {
                 menuCustomer();
             } else if (seller != null) {
                 menuSeller();
             }
-        } while(customer.equals(null) && seller.equals(null));
+        } while(customer == null && seller == null || loop.equals(CONTINUE_LOOP));
         System.out.println("Adios");
     }
     
@@ -135,7 +138,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
     }
     
     
-    private static void accessSystem() {
+    private static String accessSystem() {
         customer = null;
         seller = null;
         String option = CREATE_ACCOUNT;
@@ -156,9 +159,11 @@ public class View extends ReceiverAdapter implements RequestHandler{
                 loop = createAccount();
             } else if (option.equals(LOGIN_ACCOUNT)) {
                 loop = login();
+            } else if (option.equals(EXIT_SYSTEM)) {
+                return END_LOOP;
             }
-        } while (!option.equals(CREATE_ACCOUNT) && !option.equals(LOGIN_ACCOUNT) && !option.equals(EXIT_SYSTEM)
-                || loop == END_LOOP);
+        } while (!option.equals(CREATE_ACCOUNT) && !option.equals(LOGIN_ACCOUNT) || loop.equals(CONTINUE_LOOP));
+        return CONTINUE_LOOP;
     }
     
 
@@ -230,6 +235,9 @@ public class View extends ReceiverAdapter implements RequestHandler{
                 passwordMatch = false;
             } else if (userNotExist && passwordMatch) {
                 userCreationSuccessMessage();
+                System.out.println("PRESSIONE ENTER PRA SAIR");
+                selectOption = new Scanner(System.in);
+                String hold = selectOption.nextLine();
             }
         } while (!userNotExist || !passwordMatch);
         return CONTINUE_LOOP;
@@ -268,7 +276,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
             } else if (option.equals(LOGIN_SELLER)) {
                 loop = loginSeller();
             }
-        } while (!option.equals(LOGIN_COSTUMER) && !option.equals(LOGIN_SELLER) || loop == END_LOOP);
+        } while (!option.equals(LOGIN_COSTUMER) && !option.equals(LOGIN_SELLER) || loop.equals(CONTINUE_LOOP));
         return END_LOOP;
     }
     
@@ -491,16 +499,18 @@ public class View extends ReceiverAdapter implements RequestHandler{
     
 
     private static Comunication sendMessage(Comunication comunication) {
-    	// TODO Address cluster = enderecosControle;
-    	Address cluster = null;
+        
+    	Vector<Address> cluster = enderecosControle;
+        //Address cluster = null;
+        
         RequestOptions optinsResponse = new RequestOptions();
         optinsResponse.setMode(ResponseMode.GET_FIRST);
         // optionsResponse.setAnycasting(true);
-        optinsResponse.setAnycasting(false);
-        Message newMessage = new Message(cluster, comunication);
+        optinsResponse.setAnycasting(true);
+        Message newMessage = new Message(null, comunication);
         RspList<Comunication> responseComunication = null;
         try {
-            responseComunication = controlDispatcher.castMessage(null, newMessage, optinsResponse);
+            responseComunication = controlDispatcher.castMessage(cluster, newMessage, optinsResponse);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -682,7 +692,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
         	}	
     	} else if(msg.channel == EnumChannel.CONTROL_TO_VIEW) {
     		if(msg.service == EnumServices.NEW_CONTROL_MEMBER) {
-    			this.enderecosControle.add(message.getSrc());
+    			enderecosControle.add(message.getSrc());
     			return null;
     		}	
     	}
