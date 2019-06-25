@@ -208,9 +208,9 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     	if((int)comunication.content.get(0) != 0) {
     		return (int)comunication.content.get(0);
     	}
-    	
-    	
-    	
+        
+        
+
     	//	Efetiva de fato a compra
         comunication = null;
         comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.MAKE_PURCHASE, content);
@@ -418,19 +418,58 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
 
     private boolean sendAnswer(String seller, String product, String question, String answer) {
     	
-    	boolean retorno = false;
-    	/*
-    	if(!products.exists(product)) {
-    	    return false;
-    	}
-    	
-    	Answer response = new Answer(seller, answer);
-    	
-    	if(products.get_product(product).add_answer(response)) {
-    		return true;
-    	}
-    	*/
-    	return retorno;
+        // Verifica se o vendedor existe
+        ArrayList<Object> content = new ArrayList<Object>();
+        content.add(seller);
+        Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, 
+                EnumServices.SELLER_EXIST, content);
+        comunication = this.sendMessageModelAny(comunication);
+        if(!(boolean)comunication.content.get(0))
+            return false;
+
+        // Verifica se o produto existe
+        content.clear();
+        content.add(product);
+        comunication = null;
+        comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.ITEM_EXIST, content);
+        comunication = this.sendMessageModelAny(comunication);
+        if(!(boolean)comunication.content.get(0))
+            return false;
+
+        // Verifica se a pergunta existe
+        content.clear();
+        content.add(product);
+        content.add(question);
+        comunication = null;
+        comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.QUESTION_EXIST, content);
+        comunication = this.sendMessageModelAny(comunication);
+        if(!(boolean)comunication.content.get(0))
+            return false;
+            
+
+        // Manda salvar de fato a pergunta
+        content.add(seller);
+        content.add(answer);
+        comunication = null;
+        comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.SAVE_ANSWER, content);
+
+        //	TODO  Abaixo falta colocar em um laço de acordo para todos os modelos falarem que escreveu que
+        //o cliente foi adicionado com o sucesso.
+        
+        RspList<Comunication> responses = this.sendMessageModelAll(comunication);
+        //this.customers.add_customer(customer); OLD
+        
+        boolean bool = true;
+        
+        for (Rsp<Comunication> rsp : responses) {
+			bool = bool & (boolean)rsp.getValue().content.get(0);
+		}
+        
+        if(bool)
+        	return true;
+
+        return false;
+
     }
     
     @SuppressWarnings("unchecked")

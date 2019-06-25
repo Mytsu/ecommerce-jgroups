@@ -68,8 +68,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         
     	return;
     }
-    
-    
+       
     public void receive(Message msg) { //exibe mensagens recebidas
     	/*  No trabalho, vocês deverão verificar qual o tipo de mensagem informativa
     		chegou e tratá-la conforme o caso. DICA: o objeto colocado dentro da
@@ -119,7 +118,14 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		return true;
     	}
     	return false;
-    }
+	}
+	
+	private boolean questionExist(String product, String question){
+		if(products.get_product(product).questions.containsKey(question)){
+			return true;
+		}
+		return false;
+	}
     
     private boolean addCustomer(Customer customer) {
     	this.customers.add_customer(customer);
@@ -229,7 +235,15 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         products.get_product(product).add_question(question);
     	return true;
     }
-    
+	
+	private boolean saveAnswer(String product, String question, String seller, String answer) {
+		
+		Answer answer2 = new Answer(seller, answer);
+		this.products.get_product(product).questions.get(question).add_answer(answer2);
+		
+		return true;
+	}
+		
     private ArrayList<Sell> getBougthItens(String customer) {
     	return this.customers.get_customer(customer).sell;
     }
@@ -321,6 +335,13 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     			response.service = EnumServices.ITEM_EXIST;
     			boolean var = this.itemExist((String)msg.content.get(0));
     			content.add(var);
+			}
+			
+			else if(msg.service == EnumServices.QUESTION_EXIST) {
+    			//	boolean questionExist(String product, String question)
+    			response.service = EnumServices.QUESTION_EXIST;
+    			boolean var = this.questionExist((String)msg.content.get(0), (String)msg.content.get(1));
+    			content.add(var);
     		}
     		
     		else if(msg.service == EnumServices.SAVE_CUSTOMER) {
@@ -390,6 +411,14 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     			response.service = EnumServices.SAVE_QUESTION;
     			boolean var = this.saveQuestion((Question)msg.content.get(0), (String)msg.content.get(1));
     			content.add(var);
+			}
+			
+    		else if(msg.service == EnumServices.SAVE_ANSWER) {
+    			//	boolean saveAnswer(String product, String question, String seller, String answer)
+    			response.service = EnumServices.SAVE_QUESTION;
+				boolean var = this.saveAnswer((Question)msg.content.get(0), (String)msg.content.get(1),
+				(String)msg.content.get(2), (String)msg.content.get(3));
+    			content.add(var);
     		}
     		
     		else if(msg.service == EnumServices.GET_BOUGHT_ITENS) {
@@ -451,7 +480,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         
         return response;
 	}
-		
+
 
 
 		

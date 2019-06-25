@@ -53,9 +53,10 @@ public enum EnumServices {
 	CONFIRM_LOGIN_SELLER,
 	
 	// Servicos de pergunta
+	QUESTION_EXIST,	
 	SAVE_QUESTION,
-	SAVE_ANSWER,	
-	
+	SAVE_ANSWER,
+
 	//Servicos para montagem dos subgrupos
 	NEW_VIEW_MEMBER,
 	NEW_CONTROL_MEMBER,
