@@ -5,7 +5,12 @@ import java.util.HashMap;
 
 public class Product implements Serializable {
 
-    private static final long serialVersionUID = 4506509784967298618L;
+    @Override
+	public String toString() {
+		return "Product [id=" + id + ", description=" + description + ", count=" + count + "]";
+	}
+
+	private static final long serialVersionUID = 4506509784967298618L;
     public String id, description;
     public HashMap<String, Question> questions;
     public HashMap<String, Offer> offers;

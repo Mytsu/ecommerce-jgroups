@@ -45,7 +45,7 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-//		this.control_modelChannel = new JChannel("control_model.xml");
+        //this.control_modelChannel = new JChannel("control_model.xml");
         
         this.view_controlChannel.setReceiver(this);
         this.control_modelChannel.setReceiver(this);
@@ -136,29 +136,31 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
             return false;
         */
         
-    	// Checa se já existe esse cliente
-        // ArrayList<Object> content = new ArrayList<Object>();
-        // content.add(id);
-        // Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.CUSTOMER_EXIST, content);
-        // comunication = this.sendMessageModelAny(comunication);
+    	//Checa se já existe esse cliente
+        ArrayList<Object> content = new ArrayList<Object>();
+        content.add(id);
+        Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.CUSTOMER_EXIST, content);
+        comunication = this.sendMessageModelAny(comunication);
         
-        // System.out.println((boolean)comunication.content.get(0));
+        System.out.println((boolean)comunication.content.get(0));
 
-        // if((boolean)comunication.content.get(0) == true) {
-        // 	return false;
-        // }
-
-        if (! this.add_customer21(id)){
-            return false;
+        if((boolean)comunication.content.get(0) == true) {
+        	return false;
         }
+
+        // if (! this.add_customer21(id)){
+        //     return false;
+        // }
         
         // Adiciona ele realmente no modelo
         Customer customer = new Customer(id, fullname, password);
         customer.funds = INITIALFUNDING;
         
         ArrayList<Object> content2 = new ArrayList<Object>();
-        //content2.add(customer);
-        content2.add("customer string");
+        content2.add(customer);
+        //content2.add("customer string");
+        //content2.add("Uma outra string pra ver se funfa.");
+        //content2.add(new Product("Produto qq","Descricao qq"));
 
         Comunication comunication2 = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.SAVE_CUSTOMER, content2);
         
