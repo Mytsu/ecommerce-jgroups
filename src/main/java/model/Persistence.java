@@ -325,11 +325,10 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		
     		else if(msg.service == EnumServices.SAVE_CUSTOMER) {
 				//	boolean addCustomer(Customer cus)
-				System.out.println("OLA FILHO DEW UMA PUTA VAI TOMAR NO CU");
 				response.service = EnumServices.SAVE_CUSTOMER;
 				content.add(true);
-    			//boolean var = this.addCustomer((Customer)msg.content.get(0));
-    			//content.add(var);
+    			boolean var = this.addCustomer((Customer)msg.content.get(0));
+    			content.add(var);
     		}
     		
     		else if(msg.service == EnumServices.SAVE_SELLER) {
@@ -420,13 +419,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     			boolean var = this.isFundsRight();
     			content.add(var);
     		}
-    		
-    		
-    		
-    		
 
-    		
-    		
     		response.channel = EnumChannel.MODEL_TO_CONTROL;
     		response.content = content;
     	}

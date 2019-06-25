@@ -112,20 +112,6 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     //                                 Parte dos clientes                                  //
     /////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
-    
-    private boolean add_customer21(String id){
-        ArrayList<Object> content = new ArrayList<Object>();
-        content.add(id);
-        Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.CUSTOMER_EXIST, content);
-        comunication = this.sendMessageModelAny(comunication);
-        
-        System.out.println((boolean)comunication.content.get(0));
-
-        if((boolean)comunication.content.get(0) == true) {
-        	return false;
-        }
-        return true;
-    }
 
     // Function to add a customer
     private boolean add_customer(String id, String fullname, String password) {
@@ -147,10 +133,6 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         if((boolean)comunication.content.get(0) == true) {
         	return false;
         }
-
-        // if (! this.add_customer21(id)){
-        //     return false;
-        // }
         
         // Adiciona ele realmente no modelo
         Customer customer = new Customer(id, fullname, password);
@@ -437,17 +419,17 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     private boolean sendAnswer(String seller, String product, String question, String answer) {
     	
     	boolean retorno = false;
-    	
-    	//if(!products.exists(product)) {
-    		//return false;
-    	//}
+    	/*
+    	if(!products.exists(product)) {
+    	    return false;
+    	}
     	
     	Answer response = new Answer(seller, answer);
     	
-    	//if(products.get_product(product).add_answer(response)) {
-    		//return true;
-    	//}
-    	
+    	if(products.get_product(product).add_answer(response)) {
+    		return true;
+    	}
+    	*/
     	return retorno;
     }
     
@@ -477,6 +459,10 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     /////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * @return Somatório dos fundos na persistência
+     */
+    @SuppressWarnings("unused")
     private double getTotalFunds() {
         ArrayList<Object> content = null;
         
@@ -634,9 +620,6 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     			content.add(var);
     			response.service = EnumServices.TOTAL_FUNDS_BOOL;
     		}
-    		
-
-    		
     		
     		response.channel = EnumChannel.CONTROL_TO_VIEW;
     		response.content = content;
