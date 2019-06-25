@@ -172,9 +172,8 @@ public class View extends ReceiverAdapter implements RequestHandler{
     	content.add(customer);
     	Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.BOUGHT_ITENS, content);
         newComunication = sendMessage(newComunication);
-        
-        ArrayList<Sell> buyingList = new ArrayList<Sell>();
-        buyingList = (ArrayList<Sell>) newComunication.content.get(0);
+        @SuppressWarnings("unchecked")
+        ArrayList<Sell> buyingList = (ArrayList<Sell>) newComunication.content.get(0);
         System.out.println("");
         // TODO a
         return CONTINUE_LOOP;
@@ -380,6 +379,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
     private static ArrayList<Object> getListAllProducts() {
         Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.LIST_ITENS, null);
         newComunication = sendMessage(newComunication);
+        @SuppressWarnings("unchecked")
         ArrayList<Object> listOfProducts = (ArrayList<Object>)newComunication.content.get(0);
         if(listOfProducts.size() == 0) {
         	ErrorMessage.noItemsFound();
@@ -478,6 +478,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
             }
         }
         // =============================================
+        @SuppressWarnings("unchecked")
         ArrayList<Object> searchItems = (ArrayList<Object>)newComunication.content.get(0);
         if (searchItems.size() == 0){
         	ErrorMessage.noItemsFound();
