@@ -3,7 +3,6 @@ package model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.jgroups.Address;
 import org.jgroups.JChannel;
@@ -18,7 +17,8 @@ import system.*;
 
 public class Persistence extends ReceiverAdapter implements RequestHandler, Serializable{
 
-    private static final long serialVersionUID = 4506509784967298618L;
+	private static final long serialVersionUID = 4506509784967298618L;
+	private static final int SAVE_INTERVAL = 50000;
 	
     private CustomerDAO customers;
     private SellerDAO sellers;
@@ -36,6 +36,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         try {
 			this.control_modelChannel = new JChannel("control_model.xml");
 		} catch (Exception e) {
+			// TODO tratar falha na criação do JChannel
 			e.printStackTrace();
 		}
         
@@ -45,10 +46,21 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         
         // Tive que colocar o throws para nao ter que dar try catch abaixo
         this.control_modelChannel.connect("ControlModelChannel");
-        System.out.println("Passei 1");
 		this.montaGrupo();
-		System.out.println("Passei 2");
-    }
+
+		// Salva os arquivos em um intervalo determinado
+		while(true) {
+			this.saveFiles();
+			wait(SAVE_INTERVAL);
+		}
+	}
+
+	private void saveFiles() {
+		this.sellers.saveFile();
+		this.products.saveFile();
+		this.customers.saveFile();
+	}
+	
     
     private void montaGrupo() {
         
@@ -102,24 +114,15 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     }
     
     private boolean customerExist(String id) {
-    	if(customers.exists(id)) {
-    		return true;
-    	}
-    	return false;
+    	return customers.exists(id);
     }
 
     private boolean sellerExist(String id) {
-    	if(sellers.exists(id)) {
-    		return true;
-    	}
-    	return false;
+    	return sellers.exists(id);
     }
     
     private boolean itemExist(String id) {
-    	if(products.exists(id)) {
-    		return true;
-    	}
-    	return false;
+    	return products.exists(id);
 	}
 	
 	private boolean questionExist(String product, String question){

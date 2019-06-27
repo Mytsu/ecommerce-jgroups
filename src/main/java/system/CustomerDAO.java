@@ -48,7 +48,7 @@ public class CustomerDAO implements Serializable {
         }
     }
 
-    protected synchronized void saveFile() {
+    public synchronized void saveFile() {
         try(FileWriter file = new FileWriter(FILENAME);) {
             if (!this.data.containsKey("type") || this.data.containsKey("createdAt")) {
                 this.data.put("type", "customers");
