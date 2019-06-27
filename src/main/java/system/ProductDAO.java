@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -67,7 +67,7 @@ public class ProductDAO implements Serializable {
 
     public List<Product> get_products() {
         Iterator<String> keys = this.products.keySet().iterator();
-        List<Product> out = new Vector<Product>();
+        List<Product> out = new ArrayList<Product>();
         while (keys.hasNext()) {
             out.add((Product) this.products.get(keys.next()));
         }
