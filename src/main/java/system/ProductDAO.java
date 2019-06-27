@@ -1,15 +1,60 @@
 package system;
 
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.Reader;
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+@SuppressWarnings("unchecked")
 public class ProductDAO implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
-    private HashMap<String, Product> products;
+    private static final String FILENAME = "products.json";
+
+    private JSONObject data;
+    private JSONObject products;
 
     public ProductDAO(){
-        this.products = new HashMap<String, Product>();
+        this.loadFile();
+    }
+
+    private void loadFile() {
+        JSONParser parser = new JSONParser();
+        try(Reader reader = new FileReader(FILENAME)) {
+            this.data = (JSONObject) parser.parse(reader);
+            this.products = (JSONObject) this.data.get("products");
+        } catch(Exception e) {
+            this.data = new JSONObject();
+            this.products = new JSONObject();
+
+            /*
+            System.err.println("Não foi possível ler arquivo '" + FILENAME + "'");
+            e.printStackTrace();
+            */
+            // TODO handle loadFile error
+        }
+    }
+
+    protected synchronized void saveFile() {
+        try(FileWriter file = new FileWriter(FILENAME);) {
+            if (!this.data.containsKey("type") || this.data.containsKey("createdAt")) {
+                this.data.put("type", "products");
+                this.data.put("createdAt", new Date().toString());
+            }
+            this.data.put("products", this.products);
+            file.write(data.toJSONString());            
+        } catch(Exception e) {
+            System.err.println("Não foi possível escrever arquivo '" + FILENAME + "'");
+            e.printStackTrace();
+            // TODO handle saveFile error
+        }
     }
 
     public void add_product(Product product) {
@@ -17,17 +62,20 @@ public class ProductDAO implements Serializable {
     }
 
     public Product get_product(String product) {
-        return this.products.get(product);
+        return (Product) this.products.get(product);
     }
 
-    public HashMap<String, Product> get_products() {
-        return this.products;
+    public List<Product> get_products() {
+        Iterator<String> keys = this.products.keySet().iterator();
+        List<Product> out = new Vector<Product>();
+        while (keys.hasNext()) {
+            out.add((Product) this.products.get(keys.next()));
+        }
+        return out;
     }
 
-    public boolean exists(String product) {
-        if(this.products.containsKey(product))
-            return true;
-        return false;
+    public boolean exists(String id) {
+        return this.products.containsKey(id);
     }
 
 }

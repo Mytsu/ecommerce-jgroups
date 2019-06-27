@@ -81,7 +81,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
             System.out.println("" + msg.getSrc() + ": " + msg.getObject()+"(1)");
         }
         
-    private ArrayList<Product> getItens() {
+    private List<Product> getItens() {
     	/*	OLD CODE
     	ArrayList<Product> lista = new ArrayList<Product>();
         for (Entry<String, Product> entry : this.products.get_products().entrySet()) {
@@ -90,15 +90,15 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         
         return lista;
     	 */
-    	return (ArrayList<Product>) products.get_products().values();
+    	return products.get_products();
     }
     
     private List<Customer> getCustomers(){
     	return customers.get_customers();
     }
     
-    private ArrayList<Seller> getSellers() {
-    	return (ArrayList<Seller>) sellers.get_sellers().values();
+    private List<Seller> getSellers() {
+    	return sellers.get_sellers();
     }
     
     private boolean customerExist(String id) {
@@ -168,18 +168,15 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         return true;
     }
     
-    private ArrayList<Product> search_product(String string){
-        
-    	ArrayList<Product> lista = new ArrayList<Product>();
-
-        for (Entry<String, Product> entry : this.products.get_products().entrySet()) {
-            String key = entry.getKey();
-            if(key.contains(string)) {
-                Product prod = entry.getValue();
-                lista.add(prod);
-            }
-        }
-        return lista;
+    private List<Product> search_product(String string){
+		List<Product> products = this.products.get_products();
+		List<Product> out = new ArrayList<Product>();
+		for (Product p : products) {
+			if (p.id.equals(string) || p.description.equals(string)) {
+				out.add(p);
+			}
+		}
+		return out;
     }
     
     private int possibleMakePurchase(String customer, String seller, String product, int amount) {
@@ -220,7 +217,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     	double price = this.products.get_product(product).get_price(seller);
 
         // Incrementa o valor nos fundos do vendedor
-        this.sellers.add_funds(price*amount, this.sellers.get_seller(seller));   
+        this.sellers.add_funds(price*amount, seller);   
         // Deduz o valor nos fundos do cliente
         this.customers.add_funds(-price*amount, customer);
 
@@ -257,15 +254,14 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     private double getTotalFunds() {
 		double soma = 0.0;
 		List<Customer> customers = this.getCustomers();
+		List<Seller> sellers = this.getSellers();
 		for (Customer c : customers) {
 			soma += c.get_funds();
 		}
         
-        for (Entry<String, Seller> entry : this.sellers.get_sellers().entrySet()) {
-            Seller seller = entry.getValue();
-            soma += seller.get_funds();
-        }
-
+        for (Seller s : sellers) {
+			soma += s.get_funds();
+		}
         return soma;
     }
     
@@ -293,7 +289,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		//	Retorna todos os os itens existentes.
     		if(msg.service == EnumServices.GET_ITENS) {	
     			response.service = EnumServices.GET_ITENS;
-    			ArrayList<Product> var = this.getItens();
+    			List<Product> var = this.getItens();
     			content.add(var);
     		}
     		
@@ -307,7 +303,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		//	Retorna todos os os vendedores existentes
     		else if(msg.service == EnumServices.GET_SELLERS) {
     			response.service = EnumServices.GET_SELLERS;
-    			ArrayList<Seller> var = this.getSellers();
+    			List<Seller> var = this.getSellers();
     			content.add(var);
     		}
     		
@@ -388,7 +384,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		else if(msg.service == EnumServices.MAKE_SEARCH_ITEM) {
         		//	ArrayList<Product> search_product(String string)
     			response.service = EnumServices.MAKE_SEARCH_ITEM;
-    			ArrayList<Product> var = this.search_product((String)msg.content.get(0));
+    			List<Product> var = this.search_product((String) msg.content.get(0));
     			content.add(var);
     		}
 
