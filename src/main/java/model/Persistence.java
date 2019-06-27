@@ -2,6 +2,7 @@ package model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.jgroups.Address;
@@ -92,8 +93,8 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     	return (ArrayList<Product>) products.get_products().values();
     }
     
-    private ArrayList<Customer> getCustomers(){
-    	return (ArrayList<Customer>) customers.get_customers().values();
+    private List<Customer> getCustomers(){
+    	return customers.get_customers();
     }
     
     private ArrayList<Seller> getSellers() {
@@ -254,11 +255,11 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     }
     
     private double getTotalFunds() {
-        double soma = 0.0;
-        for (Entry<String, Customer> entry : this.customers.get_customers().entrySet()) {
-            Customer custom = entry.getValue();
-            soma += custom.get_funds();
-        }
+		double soma = 0.0;
+		List<Customer> customers = this.getCustomers();
+		for (Customer c : customers) {
+			soma += c.get_funds();
+		}
         
         for (Entry<String, Seller> entry : this.sellers.get_sellers().entrySet()) {
             Seller seller = entry.getValue();
@@ -299,7 +300,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		//	Retorna todos os os clientes existentes
     		else if(msg.service == EnumServices.GET_CUSTOMERS) {
     			response.service = EnumServices.GET_CUSTOMERS;
-    			ArrayList<Customer> var = this.getCustomers();
+    			List<Customer> var = this.getCustomers();
     			content.add(var);
     		}
     		
