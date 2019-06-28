@@ -32,22 +32,21 @@
         {
             "label": "Rodar View",
             "type": "shell",
-            "command": "mvn exec:java -Dexec.args='-v'",
+            "command": "mvn exec:java -Dexec.args='-v' 2 >/dev/null",
             "problemMatcher": []
         },
         {
             "label": "Rodar Control",
             "type": "shell",
-            "command": "mvn exec:java -Dexec.args='-c'",
+            "command": "mvn exec:java -Dexec.args='-c' 2 >/dev/null",
             "problemMatcher": []
         },
         {
             "label": "Rodar Model",
             "type": "shell",
-            "command": "mvn exec:java -Dexec.args='-m'",
+            "command": "mvn exec:java -Dexec.args='-m' 2 >/dev/null",
             "problemMatcher": []
         }
-        
         
     ]
 }
