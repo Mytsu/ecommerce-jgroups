@@ -2,6 +2,7 @@ package model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.jgroups.Address;
@@ -252,6 +253,11 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     
     private ArrayList<Sell> getSoldItens(String seller) {
     	return this.sellers.get_seller(seller).sell;
+	}
+	
+	@SuppressWarnings("unchecked")
+    private HashMap<String, Product> getSellerItens(String seller){
+        return (HashMap<String, Product>)this.sellers.get_seller(seller).products;
     }
     
     private double getTotalFunds() {
@@ -434,6 +440,13 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     			response.service = EnumServices.GET_SOLD_ITENS;
     			ArrayList<Sell> var = this.getSoldItens((String)msg.content.get(0));
     			content.add(var);
+			}
+			
+			else if(msg.service == EnumServices.GET_SELLER_ITENS) {
+    			//	HashMap<String, Product> getSellerItens(String seller)
+    			response.service = EnumServices.GET_SELLER_ITENS;
+    			HashMap<String, Product> var = this.getSellerItens((String)msg.content.get(0));
+    			content.add(var);
     		}
     		
     		else if(msg.service == EnumServices.TOTAL_FUNDS_INT) {
@@ -463,19 +476,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     			response.service = EnumServices.NEW_MODEL_MEMBER;
     			response.content = null;
     		}
-    	}
-
-    	  //DEBUG: neste exemplo, a Message contém apenas uma String 
-          // contendo uma pergunta qualquer. 
-          //String pergunta = (String) msg.getObject();
-          //System.out.println("RECEBI uma mensagem: " + pergunta+"\n");
-          //User usuario = new User("UserNameQQ1","NomeCompletoQQ1","PassWordQQ1",122.541);
-          //if(pergunta.contains("concorda"))
-          //    return pergunta;
-            //return "SIM (1)"; //resposta à requisição contida na mensagem
-          //else
-          //  return " NÃO (1)";
-		
+    	}		
 			  
 		System.out.println(response);
         
