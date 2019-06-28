@@ -2,7 +2,7 @@ package view;
 
 import java.util.Scanner;
 
-public class SystemMessage(){
+public class SystemMessage{
 
 
     public static void backMessage() {

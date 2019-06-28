@@ -14,8 +14,9 @@ public enum EnumServices {
 	SEND_ANSWER,
 	SEARCH_ITEM,
 	ADD_ITEM,
-	SOLD_ITENS,
-	BOUGHT_ITENS,
+	SOLD_ITEMS,
+	BOUGHT_ITEMS,
+	FOR_SALE_ITEMS,
 	
 	//Servicos do controle pro modelo
 	GET_ITENS,
