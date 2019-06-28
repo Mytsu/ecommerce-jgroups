@@ -83,7 +83,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
             //reader = new FileReader(VIEW_PROPERTIES);  
             //p.load(reader);
             // TODO corrigir acesso aos recursos
-            this.view_controlChannel = new JChannel("view_control.xml");
+            this.view_controlChannel = new JChannel("generalXML.xml");
         } catch (Exception e) {
             e.printStackTrace();
         }

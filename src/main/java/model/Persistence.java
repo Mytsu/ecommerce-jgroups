@@ -34,7 +34,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         this.products = new ProductDAO();
         
         try {
-			this.control_modelChannel = new JChannel("control_model.xml");
+			this.control_modelChannel = new JChannel("generalXML.xml");
 		} catch (Exception e) {
 			// TODO tratar falha na criação do JChannel
 			e.printStackTrace();

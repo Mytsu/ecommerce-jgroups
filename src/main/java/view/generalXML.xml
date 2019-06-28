@@ -1,0 +1,73 @@
+
+<!--
+  Default stack using IP multicasting. It is similar to the "udp"
+  stack in stacks.xml, but doesn't use streaming state transfer and flushing
+  author: Bela Ban
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="urn:org:jgroups"
+        xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/jgroups.xsd">
+
+    <!-- O protocolo de transporte utilizado é o UDP:
+		ip_mcast            : habilita o multicast pro IP.
+		mcast_send_buf_size	: define o tamanho do buffer de envio.
+		mcast_recv_buf_size : define o tamanho do buffer de recebimento.
+
+	-->
+    <UDP
+    		ip_mcast="true"  
+			mcast_send_buf_size="150000" 
+			mcast_recv_buf_size="150000"/>
+
+	<!-- PING -> É utilizado na detecção de membros e também para descobrir quem é o coordenador. Ele envia um ping para endereço multicast IP. 
+	-->
+    <PING/>
+
+    <!-- Para detecção de falhas é utilizado FD_SOCK com FD_ALL
+    	 FD_SOCK : verifica se algum membro do grupo está morto para que o consenso não seja travado.
+    	 FD_ALL  : utilizado para verificar o consenso.
+
+        timeout 				: Utiliza-se timeout para detectar se um membro está morto.
+		interval				: Intervalo no qual uma HEARTBEAT é enviada para o cluster.
+        timeout_check_interval  : Intervalo no qual os tempos limite do HEARTBEAT são verificados.
+ 	-->
+    <FD_SOCK/>
+    <FD_ALL
+    		timeout="10029"
+			interval="3529"
+			timeout_check_interval="1629"/>
+
+	<!-- VERIFY_SUSPECT é utilizado na verificação quando se suspeita de um membro estar morto, 
+	é necessário enviar um ping antes de excluí-lo do grupo.
+		timeout					: Ao se suspeitar de membro suspeito é necessário um número (em milissegundos) para aguardar sua reposta.
+	-->
+    <VERIFY_SUSPECT timeout="823"/>
+
+	<!-- NAKACK2 e UNICAST3 são utilizados na confirmação de recebimento das mensagens, também são usados para realizar e garantir a entrega sem perdas. São Multicast e Unicast. respectivamente. 
+	-->
+    <pbcast.NAKACK2/> 
+
+    <!-- TOTAL ORDERED ANYCAST é utilizado quando o anycast faz ordenação total das mensagens. 
+	-->   
+    <tom.TOA/>
+
+    <UNICAST3/>
+
+    <!-- STABLE é utilizado para excluir mensagens que foram vistas por todos os membros do grupo e coleta lixo de mensagens.
+	-->
+    <pbcast.STABLE/> 
+
+	<!-- O GMS é quem controla a entrada e saida de membros no cluster, nova visao.
+        join_timeout               	: Limite de tempo para juntar-se.
+        view_ack_collection_timeout : Tempo em ms para esperar por todas as VIEW acks.
+    -->
+    <pbcast.GMS
+    		join_timeout = "2829"
+    		view_ack_collection_timeout = "3429"/>
+
+	<!-- SEQUENCER é quem mantem a ordem total do provedor para a mensagem multicast, ele esbelece ordem global.
+	-->
+    <SEQUENCER />
+    
+</config>

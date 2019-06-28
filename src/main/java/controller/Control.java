@@ -35,13 +35,13 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         enderecosModelo = new Vector<Address>();
         
         try {
-			this.view_controlChannel = new JChannel("view_control.xml");
+			this.view_controlChannel = new JChannel("generalXML.xml");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
         
         try {
-			this.control_modelChannel = new JChannel("control_model.xml");
+			this.control_modelChannel = new JChannel("generalXML.xml");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
