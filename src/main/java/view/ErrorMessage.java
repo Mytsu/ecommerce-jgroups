@@ -3,13 +3,24 @@ package view;
 public class ErrorMessage {
 	
 	
-	public static void invalidOptionMessage() {
-        System.out.println("Opção inválida!\nPor favor entre com uma opção válida");
+	public static void addProductErrorMessage(int idError) {
+        if(idError == -1){
+            System.out.println("A quantia informada deve ser maior que ZERO!\nPor favor, ajuste o valor!");
+        } else if(idError == -2){
+            System.out.println("O preço informado deve ser maior que ZERO!\nPor favor, ajuste o valor!");
+        } else if(idError <= -3){
+            System.out.println("Sistema temporariamente indisponivel\nPor favor, tente mais tarde!");
+        }
+    }
+
+
+    public static void invalidOptionMessage() {
+        System.out.println("Opção inválida!\nPor favor, entre com uma opção válida!");
     }
 	
 	
 	public static void loginErrorMessage() {
-        System.out.println("Usuário/senha inválido(s)");
+        System.out.println("Usuário/senha inválido(s)!");
     }
 	
 	
