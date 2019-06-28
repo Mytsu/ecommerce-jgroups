@@ -593,7 +593,6 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     			int var = this.add_product((String)msg.content.get(0), (String)msg.content.get(1), (float)msg.content.get(2),
     					(long)msg.content.get(3), (String)msg.content.get(4));
     			content.add(var);
-    			response.service = EnumServices.ADD_ITEM;
     		}
     		
     		else if (msg.service == EnumServices.BUY_ITEM) {
@@ -601,7 +600,6 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     			int var = this.purchase((String)msg.content.get(0), (String)msg.content.get(1),
     					(String)msg.content.get(2), (int)msg.content.get(3));
     			content.add(var);
-    			response.service = EnumServices.BUY_ITEM;
     		}
     		
     		else if(msg.service == EnumServices.CREATE_CUSTOMER) {
@@ -609,36 +607,31 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     			boolean var = this.add_customer((String)msg.content.get(0),(String)msg.content.get(1),
     					(String)msg.content.get(2));
     			content.add(var);
-                response.service = EnumServices.CREATE_CUSTOMER;
     		}
     		
     		else if(msg.service == EnumServices.CREATE_SELLER) {
     			//boolean add_seller(String id, String fullname, String password)
     			boolean var = this.add_seller((String)msg.content.get(0),(String)msg.content.get(1),
     					(String)msg.content.get(2));
-    			content.add(var);
-    			response.service = EnumServices.CREATE_CUSTOMER;    			
+    			content.add(var);   			
     		}
     		
     		else if(msg.service == EnumServices.LIST_ITENS) {
     			//ArrayList<Product> list_products()
     			ArrayList<Product> var = this.list_products();
     			content.add(var);
-    			response.service = EnumServices.LIST_ITENS;
     		}
     		
     		else if(msg.service == EnumServices.LOGIN_CUSTOMER) {
     			//boolean login_customer(String customer, String password)
     			boolean var = this.login_customer((String)msg.content.get(0),(String)msg.content.get(1));
     			content.add(var);
-    			response.service = EnumServices.LOGIN_CUSTOMER;
     		}
     		
     		else if(msg.service == EnumServices.LOGIN_SELLER) {
     			//boolean login_seller(String seller, String password)
     			boolean var = this.login_seller((String)msg.content.get(0),(String)msg.content.get(1));
-    			content.add(var);
-    			response.service = EnumServices.LOGIN_SELLER;    			
+    			content.add(var);   			
     		}
     		
     		else if(msg.service == EnumServices.MAKE_QUESTION) {
@@ -646,14 +639,12 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     			boolean var = this.sendQuestion((String)msg.content.get(0), (String)msg.content.get(1),
     					(String)msg.content.get(2));
     			content.add(var);
-    			response.service = EnumServices.MAKE_QUESTION;
     		}
     		
     		else if(msg.service == EnumServices.SEARCH_ITEM) {
     			//ArrayList<Product> search_product(String string)
     			ArrayList<Product> var = this.search_product((String)msg.content.get(0));
     			content.add(var);
-    			response.service = EnumServices.SEARCH_ITEM;
     		}
     		
     		else if(msg.service == EnumServices.SEND_ANSWER) {
@@ -661,14 +652,12 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     			boolean var = this.sendAnswer((String)msg.content.get(0), (String)msg.content.get(1),
     					(String)msg.content.get(2), (String)msg.content.get(3));
     			content.add(var);
-    			response.service = EnumServices.SEND_ANSWER;
     		}
     		
     		else if(msg.service == EnumServices.BOUGHT_ITEMS) {
     			//ArrayList<Sell> getBougthItens(String customer)
     			ArrayList<Sell> var = this.getBougthItens((String)msg.content.get(0));
     			content.add(var);
-    			response.service = EnumServices.BOUGHT_ITEMS;
     		}
 
     		// Resposta para quando um membro da visão manda um multicast avisando que é novo
@@ -682,23 +671,21 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     			//ArrayList<Sell> getBougthItens(String customer)
     			ArrayList<Sell> var = this.getSoldItens((String)msg.content.get(0));
     			content.add(var);
-    			response.service = EnumServices.SOLD_ITEMS;
     		}
     		
     		else if(msg.service == EnumServices.TOTAL_FUNDS_BOOL) {
     			//boolean is_founds_right()
     			boolean var = this.isFundsRight();
     			content.add(var);
-    			response.service = EnumServices.TOTAL_FUNDS_BOOL;
             }
             
             else if(msg.service == EnumServices.FOR_SALE_ITEMS){
                 //HashMap<String, Product> getSellerItens(String seller)
                 HashMap<String, Product> var = this.getSellerItens((String)msg.content.get(0));
                 content.add(var);
-                response.service = EnumServices.FOR_SALE_ITEMS;
             }
-    		
+            
+            response.service = msg.service;
     		response.channel = EnumChannel.CONTROL_TO_VIEW;
     		response.content = content;
     		
@@ -731,13 +718,13 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     	}
     
         
-        System.out.println("Response = "+response);
+        System.out.println("Resposta do modelo \n "+response + "\n\n");
 
     	return response;
     }
     
     private Comunication sendMessageModelAny(Comunication comunication) {
-        System.out.println("MENSAGEM PRO DESGRAÇADO DO MODELO1: " + comunication);
+        //System.out.println("Mandando mensagem pro modelo getFirst\n " + comunication);
     	Vector<Address> cluster = this.enderecosModelo;
     	//Address cluster = null;
         RequestOptions optinsResponse = new RequestOptions();
@@ -757,8 +744,7 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     }
     
     private RspList<Comunication> sendMessageModelAll(Comunication comunication) {
-
-        System.out.println("MENSAGEM PRO DESGRAÇADO DO MODELO2: " + comunication);
+        //System.out.println("Mandando mensagem pro modelo getAll\n " + comunication);
 
     	Vector<Address> cluster = this.enderecosModelo;
     	//Address cluster = null;

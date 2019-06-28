@@ -167,7 +167,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     private boolean confirmLoginSeller(String seller, String password) {
     	if(!this.sellers.exists(seller))
             return false;
-        if(this.sellers.get_seller(seller).password != password)
+        if(!this.sellers.get_seller(seller).password.equals(password))
             return false;
         return true;
     }
@@ -284,10 +284,9 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     // responde requisições recebidas
     @Override
     public Object handle(Message message) { //throws Exception {
-    	
-    	System.out.println("Chegou a mensagem pra persistencia: " + message.getObject());
-    	Comunication msg = (Comunication)message.getObject();    	
-    	
+    
+		Comunication msg = (Comunication)message.getObject();    
+		System.out.println("Chegou a mensagem pra persistencia: \n" + msg);		
         
     	Comunication response = new Comunication();
     		
@@ -297,21 +296,18 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		
     		//	Retorna todos os os itens existentes.
     		if(msg.service == EnumServices.GET_ITENS) {	
-    			response.service = EnumServices.GET_ITENS;
     			List<Product> var = this.getItens();
     			content.add(var);
     		}
     		
     		//	Retorna todos os os clientes existentes
     		else if(msg.service == EnumServices.GET_CUSTOMERS) {
-    			response.service = EnumServices.GET_CUSTOMERS;
     			List<Customer> var = this.getCustomers();
     			content.add(var);
     		}
     		
     		//	Retorna todos os os vendedores existentes
     		else if(msg.service == EnumServices.GET_SELLERS) {
-    			response.service = EnumServices.GET_SELLERS;
     			List<Seller> var = this.getSellers();
     			content.add(var);
     		}
@@ -319,56 +315,47 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		//	Resposta para quando um membro da controle manda um multicast avisando que é novo
     		//dai todos os membros do modelo respondem para que ele adicione todos no seu vetor de endereços
     		else if(msg.service == EnumServices.NEW_CONTROL_MEMBER) {
-    			response.service = EnumServices.NEW_CONTROL_MEMBER;
     			content = null;
     		}
     		
     		else if(msg.service == EnumServices.CUSTOMER_EXIST) {
     			//	boolean customerExist(String id)
-    			response.service = EnumServices.CUSTOMER_EXIST;
     			boolean var = this.customerExist((String)msg.content.get(0));
     			content.add(var);
     		}
 
     		else if(msg.service == EnumServices.SELLER_EXIST) {
     			//	boolean sellerExist(String id)
-    			response.service = EnumServices.SELLER_EXIST;
     			boolean var = this.sellerExist((String)msg.content.get(0));
     			content.add(var);
     		}
 
     		else if(msg.service == EnumServices.ITEM_EXIST) {
     			//	boolean itemExist(String id)
-    			response.service = EnumServices.ITEM_EXIST;
     			boolean var = this.itemExist((String)msg.content.get(0));
     			content.add(var);
 			}
 			
 			else if(msg.service == EnumServices.QUESTION_EXIST) {
     			//	boolean questionExist(String product, String question)
-    			response.service = EnumServices.QUESTION_EXIST;
     			boolean var = this.questionExist((String)msg.content.get(0), (String)msg.content.get(1));
     			content.add(var);
     		}
     		
     		else if(msg.service == EnumServices.SAVE_CUSTOMER) {
-				//	boolean addCustomer(Customer cus)
-				response.service = EnumServices.SAVE_CUSTOMER;
-				//content.add(true);
+				//	boolean addCustomer(Customer cus)				//content.add(true);
     			boolean var = this.addCustomer((Customer)msg.content.get(0));
     			content.add(var);
     		}
     		
     		else if(msg.service == EnumServices.SAVE_SELLER) {
     			//	boolean addCustomer(Customer cus)
-    			response.service = EnumServices.SAVE_SELLER;
     			boolean var = this.addSeller((Seller)msg.content.get(0));
     			content.add(var);
     		}
     		
     		else if(msg.service == EnumServices.SAVE_ITEM) {
     			//	boolean add_product(String idSeller, String product, Float price, long amount, String description)
-    			response.service = EnumServices.SAVE_ITEM;
     			boolean var = this.add_product((String)msg.content.get(0), (String)msg.content.get(1),
     					(float)msg.content.get(2), (long)msg.content.get(3), (String)msg.content.get(4));
     			content.add(var);
@@ -376,7 +363,6 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		
     		else if(msg.service == EnumServices.CONFIRM_LOGIN_CUSTOMER) {
     			//	boolean confirmLoginCustomer(String customer, String password)
-    			response.service = EnumServices.CONFIRM_LOGIN_CUSTOMER;
     			boolean var = this.confirmLoginCustomer((String)msg.content.get(0),(String)msg.content.get(1));
 				content.add(var);
     		}
@@ -384,22 +370,19 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		
     		else if(msg.service == EnumServices.CONFIRM_LOGIN_SELLER) {
     			//	boolean confirmLoginSeller(String seller, String password)
-    			response.service = EnumServices.CONFIRM_LOGIN_SELLER;
     			boolean var = this.confirmLoginSeller((String)msg.content.get(0),(String)msg.content.get(1));
-    			content.add(var);
+				content.add(var);
     		}
     		
 
     		else if(msg.service == EnumServices.MAKE_SEARCH_ITEM) {
         		//	ArrayList<Product> search_product(String string)
-    			response.service = EnumServices.MAKE_SEARCH_ITEM;
     			List<Product> var = this.search_product((String) msg.content.get(0));
     			content.add(var);
     		}
 
     		else if(msg.service == EnumServices.POSSIBLE_MAKE_PURCHASE) {
         		//	int possibleMakePurchase(String customer, String seller, String product, int amount)
-    			response.service = EnumServices.POSSIBLE_MAKE_PURCHASE;
     			int var = this.possibleMakePurchase((String)msg.content.get(0),
     					(String)msg.content.get(1),(String)msg.content.get(2),(int)msg.content.get(3));
     			content.add(var);
@@ -407,7 +390,6 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		
     		else if(msg.service == EnumServices.MAKE_PURCHASE) {
         		//	boolean makePurchase(String customer, String seller, String product, int amount)
-    			response.service = EnumServices.MAKE_PURCHASE;
     			boolean var = this.makePurchase((String)msg.content.get(0),
     					(String)msg.content.get(1),(String)msg.content.get(2),(int)msg.content.get(3));
     			content.add(var);
@@ -415,14 +397,12 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		
     		else if(msg.service == EnumServices.SAVE_QUESTION) {
     			//	boolean saveQuestion(Question question, String product)
-    			response.service = EnumServices.SAVE_QUESTION;
     			boolean var = this.saveQuestion((Question)msg.content.get(0), (String)msg.content.get(1));
     			content.add(var);
 			}
 			
     		else if(msg.service == EnumServices.SAVE_ANSWER) {
     			//	boolean saveAnswer(String product, String question, String seller, String answer)
-    			response.service = EnumServices.SAVE_QUESTION;
 				boolean var = this.saveAnswer((String)msg.content.get(0), (String)msg.content.get(1),
 				(String)msg.content.get(2), (String)msg.content.get(3));
     			content.add(var);
@@ -430,39 +410,35 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		
     		else if(msg.service == EnumServices.GET_BOUGHT_ITENS) {
     			//	ArrayList<Sell> getBougthItens(String customer)
-    			response.service = EnumServices.GET_BOUGHT_ITENS;
     			ArrayList<Sell> var = this.getBougthItens((String)msg.content.get(0));
     			content.add(var);
     		}
     		
     		else if(msg.service == EnumServices.GET_SOLD_ITENS) {
     			//	ArrayList<Sell> getSoldItens(String seller)
-    			response.service = EnumServices.GET_SOLD_ITENS;
-    			ArrayList<Sell> var = this.getSoldItens((String)msg.content.get(0));
+				ArrayList<Sell> var = getSoldItens((String)msg.content.get(0));
     			content.add(var);
 			}
 			
 			else if(msg.service == EnumServices.GET_SELLER_ITENS) {
     			//	HashMap<String, Product> getSellerItens(String seller)
-    			response.service = EnumServices.GET_SELLER_ITENS;
     			HashMap<String, Product> var = this.getSellerItens((String)msg.content.get(0));
     			content.add(var);
     		}
     		
     		else if(msg.service == EnumServices.TOTAL_FUNDS_INT) {
     			//	double get_total_founds()
-    			response.service = EnumServices.TOTAL_FUNDS_INT;
     			double var = this.getTotalFunds();
     			content.add(var);
     		}
     		
     		else if(msg.service == EnumServices.TOTAL_FUNDS_BOOL) {
     			//	boolean is_founds_right()
-    			response.service = EnumServices.TOTAL_FUNDS_BOOL;
     			boolean var = this.isFundsRight();
     			content.add(var);
     		}
 
+			response.service = msg.service;
     		response.channel = EnumChannel.MODEL_TO_CONTROL;
     		response.content = content;
     	}
@@ -478,7 +454,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		}
     	}		
 			  
-		System.out.println(response);
+		System.out.println("Resposta do modelo\n"+response+"\n\n");
         
         return response;
 	}
