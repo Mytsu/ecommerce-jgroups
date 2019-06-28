@@ -2,6 +2,7 @@ package controller;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 
 import org.jgroups.*;
@@ -307,7 +308,9 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         }
     	
         comunication = null; comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, 
-        		EnumServices.GET_BOUGHT_ITENS, content);
+                EnumServices.GET_BOUGHT_ITENS, content);
+                
+        comunication = this.sendMessageModelAny(comunication);
     	
         return (ArrayList<Sell>) comunication.content.get(0);
     }
@@ -489,11 +492,38 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         }
     	
         comunication = null; comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, 
-        		EnumServices.GET_SOLD_ITENS, content);
-    	
+                EnumServices.GET_SOLD_ITENS, content);
+                
+        comunication = this.sendMessageModelAny(comunication);        
+
         return (ArrayList<Sell>) comunication.content.get(0);
     }
     
+    @SuppressWarnings("unchecked")
+    private HashMap<String, Product> getSellerItens(String seller){
+
+        ArrayList<Object> content = new ArrayList<Object>();
+        
+        content.add(seller);
+        Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.SELLER_EXIST, content);
+        comunication = this.sendMessageModelAny(comunication);
+        
+        //	Caso do vendedor não existir retorna o nulo
+        if(!(boolean)comunication.content.get(0) == true) {
+        	return null;
+        }
+
+        comunication = null; comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, 
+                EnumServices.GET_SELLER_ITENS, content);
+                
+        comunication = this.sendMessageModelAny(comunication);        
+
+
+        return (HashMap<String, Product>)comunication.content.get(0);
+    }
+    
+
+
     /////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
     //                                 Parte do sistema                                    //
@@ -634,11 +664,11 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     			response.service = EnumServices.SEND_ANSWER;
     		}
     		
-    		else if(msg.service == EnumServices.BOUGHT_ITENS) {
+    		else if(msg.service == EnumServices.BOUGHT_ITEMS) {
     			//ArrayList<Sell> getBougthItens(String customer)
     			ArrayList<Sell> var = this.getBougthItens((String)msg.content.get(0));
     			content.add(var);
-    			response.service = EnumServices.BOUGHT_ITENS;
+    			response.service = EnumServices.BOUGHT_ITEMS;
     		}
 
     		// Resposta para quando um membro da visão manda um multicast avisando que é novo
@@ -648,11 +678,11 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     			content = null;
     		}
     		
-    		else if(msg.service == EnumServices.SOLD_ITENS) {
+    		else if(msg.service == EnumServices.SOLD_ITEMS) {
     			//ArrayList<Sell> getBougthItens(String customer)
     			ArrayList<Sell> var = this.getSoldItens((String)msg.content.get(0));
     			content.add(var);
-    			response.service = EnumServices.SOLD_ITENS;
+    			response.service = EnumServices.SOLD_ITEMS;
     		}
     		
     		else if(msg.service == EnumServices.TOTAL_FUNDS_BOOL) {
@@ -660,7 +690,14 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     			boolean var = this.isFundsRight();
     			content.add(var);
     			response.service = EnumServices.TOTAL_FUNDS_BOOL;
-    		}
+            }
+            
+            else if(msg.service == EnumServices.FOR_SALE_ITEMS){
+                //HashMap<String, Product> getSellerItens(String seller)
+                HashMap<String, Product> var = this.getSellerItens((String)msg.content.get(0));
+                content.add(var);
+                response.service = EnumServices.FOR_SALE_ITEMS;
+            }
     		
     		response.channel = EnumChannel.CONTROL_TO_VIEW;
     		response.content = content;
@@ -693,17 +730,6 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     		response.content = content;
     	}
     
-
-	  //DEBUG: neste exemplo, a Message contém apenas uma String 
-      // contendo uma pergunta qualquer. 
-      //String pergunta = (String) msg.getObject();
-      //System.out.println("RECEBI uma mensagem: " + pergunta+"\n");
-      //User usuario = new User("UserNameQQ1","NomeCompletoQQ1","PassWordQQ1",122.541);
-      //if(pergunta.contains("concorda"))
-      //    return pergunta;
-        //return "SIM (1)"; //resposta à requisição contida na mensagem
-      //else
-      //  return " NÃO (1)";
         
         System.out.println("Response = "+response);
 

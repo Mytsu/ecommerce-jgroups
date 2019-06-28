@@ -70,6 +70,9 @@ public class View extends ReceiverAdapter implements RequestHandler{
     private static final String ADD_PRODUCT = "1";
     private static final String ITEMS_SOLD = "2";
     private static final String ITEMS_FOR_SALE = "3";
+    // SELLER PRODUCT OPTIONS:
+    private static final Boolean ONLY_ASSETS = true;
+    private static final String STANDARD_MESSAGE = "Algo de errado não está certo!";
 
     // JGROUPS
     private JChannel view_controlChannel;
@@ -445,40 +448,153 @@ public class View extends ReceiverAdapter implements RequestHandler{
     }
 
 
-    private static void printProductsForSaleList(HashMap<String, Product> itemsForSale){
-        /*
-         * TODO
-         */
+    private static ArrayList<String> printProductsForSaleList(HashMap<String, Product> forSaleItemsList, Boolean onlyAssets){
+        int cont = 0;
+        ArrayList<String> productList = new ArrayList<String>();
+        for (Entry<String, Product> product : forSaleItemsList.entrySet()) {
+            if((onlyAssets && product.getValue().count != 0) || (!onlyAssets)){
+                System.out.println("Index: " + cont);
+                System.out.println("Produto: " + product.getValue().id);
+                System.out.println("Produto: " + product.getValue().description);
+                productList.add(product.getValue().id);
+            }
+            cont++;
+        }
+        return productList;
     }
 
 
-    private static void printProductsSoldList(ArrayList<Sell> itemsForSale){
+    private static void printProductsSoldList(ArrayList<Sell> soldItems){
         System.out.println("================ LISTA DE PRODUTOS VENDIDOS =================");
-        for(int i = 0; i < itemsForSale.size(); i++){
-            System.out.println("Produto: " + itemsForSale.get(i).productId);
-            System.out.println("Comprador: " + itemsForSale.get(i).customerId);
-            System.out.println("Quantia comprada: " + itemsForSale.get(i).quant);
-            System.out.println("Valor: " + itemsForSale.get(i).price);
-            System.out.println("Total: " + (itemsForSale.get(i).quant * itemsForSale.get(i).price));
+        for(int i = 0; i < soldItems.size(); i++){
+            System.out.println("Produto: " + soldItems.get(i).productId);
+            System.out.println("Comprador: " + soldItems.get(i).customerId);
+            System.out.println("Quantia comprada: " + soldItems.get(i).quant);
+            System.out.println("Valor: " + soldItems.get(i).price);
+            System.out.println("Total: " + (soldItems.get(i).quant * soldItems.get(i).price));
             System.out.println("=============================================================");
         }
         SystemMessage.pressEnterMessage();
     }
 
 
+    private static String printSpecificProductForSale(Product specificProduct) {
+        ArrayList<Object> content = new ArrayList<Object>();
+        ArrayList<String> questionsList = new ArrayList<String>();
+        int cont = 0;
+        int index = 0;
+        String loop = CONTINUE_LOOP;
+        String option = EMPTY_STRING;
+        do{
+            System.out.println(specificProduct.id);
+            System.out.println("Descrição: "+specificProduct.description);
+            System.out.println("FAQ: ");
+            for (Entry<String, Question> entry : specificProduct.questions.entrySet()) {
+                System.out.println("Pergunta - " + cont);
+                System.out.print("Usuário: "+entry.getValue().userId);
+                System.out.print("\tPergunta: "+entry.getValue().id);
+                questionsList.add(entry.getValue().id);
+                cont++;
+            }
+            System.out.println("============= FIM FAQ =============");
+            // sendAnswer(String seller, String product, String question, String answer)
+            content.add(seller);
+            content.add(specificProduct.id);
+            System.out.println("Informe o número da pergunta que deseja responder: ");
+            selectOption = new Scanner(System.in);
+            option = selectOption.nextLine();
+            if(option.equals(EXIT_MENU)){
+                return CONTINUE_LOOP;
+            }
+            try{
+                index = Integer.parseInt(option);
+                if((index < 0) || (index > questionsList.size())){
+                    ErrorMessage.productIndexOutOfRangeMessage();
+                } else {
+                    content.add(questionsList.get(index));
+                    System.out.println("RESPOSTA: ");
+                    selectOption = new Scanner(System.in);
+                    option = selectOption.nextLine();
+                    if(option.equals(EMPTY_STRING)){
+                        option = STANDARD_MESSAGE;
+                    }
+                    content.add(option);
+                    Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.SEND_ANSWER, content);
+                    int attempts = 0;
+                    loop = CONTINUE_LOOP;
+                    while ((loop.equals(CONTINUE_LOOP)) && (attempts < MAX_OF_ATTEMPTS)){
+                        try {
+                            newComunication = sendMessage(newComunication);
+                            if((Boolean)newComunication.content.get(0))
+                                loop = END_LOOP;
+                            else
+                                loop = CONTINUE_LOOP;
+                        } catch(Exception e) {
+                            attempts++;
+                        }
+                    }
+                    loop = END_LOOP;
+                }
+            } catch(Exception e){
+                ErrorMessage.productIndexOutOfRangeMessage();
+                loop = CONTINUE_LOOP;
+            }
+        } while(loop.equals(CONTINUE_LOOP));
+        return CONTINUE_LOOP;
+    }
+
+
     private static String productsForSale(){
-        /*
-         * TODO
-         */
+        ArrayList<Object> content = new ArrayList<Object>();
+        content.add(seller);
+        Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.FOR_SALE_ITEMS, content);
+        int attempts = 0;
+        String loop = CONTINUE_LOOP;
+        while ((loop.equals(CONTINUE_LOOP)) && (attempts < MAX_OF_ATTEMPTS)){
+        	try {
+                newComunication = sendMessage(newComunication);
+                loop = END_LOOP;
+            } catch(Exception e) {
+            	attempts++;
+            }
+        }
+
+        HashMap<String, Product> forSaleItemsList = (HashMap<String, Product>)newComunication.content.get(0);
+
+        ArrayList<String> productList = new ArrayList<String>();
+        int index = 0;
+        loop = CONTINUE_LOOP;
+        String option = EMPTY_STRING;
+        do{
+            productList.clear();
+            SystemMessage.clearScreen();
+            productList = printProductsForSaleList(forSaleItemsList, ONLY_ASSETS);
+            System.out.println("Informe o index do produto que deseja acessar: ");
+            SystemMessage.backMessage();
+            selectOption = new Scanner(System.in);
+            option = selectOption.nextLine();
+            if(option.equals(EXIT_MENU)){
+                return CONTINUE_LOOP;
+            }
+            try{
+                index = Integer.parseInt(option);
+                if((index < 0) || (index > productList.size())){
+                    ErrorMessage.productIndexOutOfRangeMessage();
+                }
+                loop = printSpecificProductForSale(forSaleItemsList.get(productList.get(index)));
+            } catch(Exception e){
+                ErrorMessage.productIndexOutOfRangeMessage();
+            }
+        } while (loop.equals(CONTINUE_LOOP));
+
         return CONTINUE_LOOP;
     }
 
 
     private static String productsSold(){
-        // TODO
         ArrayList<Object> content = new ArrayList<Object>();
         content.add(seller);
-        Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.SOLD_ITENS, content);
+        Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.SOLD_ITEMS, content);
         newComunication = sendMessage(newComunication);
         ArrayList<Sell> itemsForSale = (ArrayList<Sell>)newComunication.content.get(0);
         if(itemsForSale.size() == 0){
@@ -501,7 +617,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
     private static String buyingList() {
     	ArrayList<Object> content = new ArrayList<Object>();
     	content.add(customer);
-    	Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.BOUGHT_ITENS, content);
+    	Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.BOUGHT_ITEMS, content);
         newComunication = sendMessage(newComunication);
         @SuppressWarnings("unchecked")
         ArrayList<Sell> buyingList = (ArrayList<Sell>) newComunication.content.get(0);
@@ -527,7 +643,16 @@ public class View extends ReceiverAdapter implements RequestHandler{
     
     private static ArrayList<Object> getListAllProducts() {
         Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.LIST_ITENS, null);
-        newComunication = sendMessage(newComunication);
+        int attempts = 0;
+        String loop = CONTINUE_LOOP;
+        while ((loop.equals(CONTINUE_LOOP)) && (attempts < MAX_OF_ATTEMPTS)){
+        	try {
+                newComunication = sendMessage(newComunication);
+                loop = END_LOOP;
+            } catch(Exception e) {
+            	attempts++;
+            }
+        }
         @SuppressWarnings("unchecked")
         ArrayList<Object> listOfProducts = (ArrayList<Object>)newComunication.content.get(0);
         if(listOfProducts.size() == 0) {
@@ -609,7 +734,6 @@ public class View extends ReceiverAdapter implements RequestHandler{
          * ArrayList<Product> search_product(String string)
          */
         ArrayList<Object> content = new ArrayList<Object>();
-        int amountBought;
         String option = EMPTY_STRING;
         String loop = CONTINUE_LOOP;
         String productName = EMPTY_STRING;  
