@@ -65,20 +65,7 @@ public class CustomerDAO implements Serializable {
     }
     
     public void add_customer(Customer customer) {
-        JSONObject cust = new JSONObject();
-        JSONObject sells = new JSONObject();
-
-        cust.put("fullname", customer.fullname);
-        cust.put("funds", customer.funds);
-        cust.put("id", customer.id);
-        cust.put("password", customer.password);
-        cust.put("username", customer.username);
-
-        for (Sell s : customer.getSells()) {
-            sells.put(s.productId, s);
-        }
-        cust.put("sells", sells);
-        this.customers.put(customer.id, cust);
+        this.customers.put(customer.id, customer);
     }
 
     public void add_funds(double funds, String customerId) {

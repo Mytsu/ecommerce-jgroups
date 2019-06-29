@@ -56,22 +56,9 @@ public class ProductDAO implements Serializable {
             // TODO handle saveFile error
         }
     }
-        
+
     public void add_product(Product product) {
-        JSONObject prod = new JSONObject();
-        JSONObject questions = new JSONObject();
-        JSONObject offers = new JSONObject();
-
-        prod.put("count", product.count);
-        prod.put("description", product.description);
-        prod.put("id", product.id);
-        
-        offers.putAll(product.getOffers());
-        questions.putAll(product.getQuestions());
-
-        prod.put("offers", offers);
-        prod.put("questions", questions);
-        this.products.put(product.id, prod);
+        this.products.put(product.id, product);        
     }
 
     public Product get_product(String product) {

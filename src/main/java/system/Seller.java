@@ -3,7 +3,6 @@ package system;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class Seller implements Serializable {
 
@@ -36,10 +35,6 @@ public class Seller implements Serializable {
 
     public void add_sell(Sell sell) {
         this.sell.add(sell);
-    }
-
-    public List<Sell> getSells() {
-        return this.sell;
     }
 
     @Override
