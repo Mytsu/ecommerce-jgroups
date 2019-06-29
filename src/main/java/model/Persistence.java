@@ -150,6 +150,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         if(!this.products.exists(product))
             products.add_product(novoProdoto);
 
+		novoProduto.add_offer(new Offer(idSeller, price, amount));
         //Decidir se vai incrementar caso o produto e o vendedor ja exista
 		//Ou se simplesmente vai criar uma nova oferta
 
@@ -261,7 +262,6 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     	return this.sellers.get_seller(seller).sell;
 	}
 	
-	@SuppressWarnings("unchecked")
     private HashMap<String, Product> getSellerItens(String seller){
         return (HashMap<String, Product>)this.sellers.get_seller(seller).products;
     }

@@ -2,6 +2,7 @@ package system;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Product implements Serializable {
 
@@ -32,9 +33,15 @@ public class Product implements Serializable {
             this.count += offer.get_amount();
             return ;
     	}
+<<<<<<< HEAD
         
         this.count += offer.amount;
         this.offers.get(offer.id).price = offer.price;
+=======
+    	
+        this.offers.get(offer.id).price = offer.price;
+        this.count += offer.amount;
+>>>>>>> refs/remotes/origin/master
     	this.offers.get(offer.id).amount += offer.amount;
     	
     	return ;        
@@ -57,9 +64,17 @@ public class Product implements Serializable {
         return this.offers.get(seller).price;
     }
 
+    public Map<String, Offer> getOffers() {
+        return this.offers;
+    }
+
+    public Map<String, Question> getQuestions() {
+        return this.questions;
+    }
+
     public void deduce_amount(String seller, int amount) {
         this.offers.get(seller).amount -= amount;
-        //FAZER RETIRADA DO VENDEDOR QUANDO O ESTOQUE DELE CHEGAR A 0
+        // TODO FAZER RETIRADA DO VENDEDOR QUANDO O ESTOQUE DELE CHEGAR A 0
     }
 
     public boolean has_enougth(String seller, int amount) {

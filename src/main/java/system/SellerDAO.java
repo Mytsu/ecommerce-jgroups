@@ -67,9 +67,22 @@ public class SellerDAO implements Serializable {
         seller.add_funds(funds);
         this.sellers.replace(sellerId, seller);
     }
-
+        
     public void add_seller(Seller seller) {
-        this.sellers.put(seller.id, seller);
+        JSONObject sel = new JSONObject();
+        JSONObject sellers = new JSONObject();
+
+        sel.put("fullname", seller.fullname);
+        sel.put("funds", seller.funds);
+        sel.put("id", seller.id);
+        sel.put("password", seller.password);
+        sel.put("username", seller.username);
+
+        for (Sell s : seller.getSells()) {
+            sellers.put(s.productId, s);
+        }
+        sel.put("sells", sellers);
+        this.sellers.put(seller.id, sel);
     }
 
     public Seller get_seller(String seller) {
