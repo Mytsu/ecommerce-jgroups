@@ -748,7 +748,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
             }
             productName = option;
             content.add(productName);
-        } while(!option.equals(EMPTY_STRING));
+        } while(option.equals(EMPTY_STRING));
         int attempts = 0;
         loop = CONTINUE_LOOP;
         Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.SEARCH_ITEM, content);
@@ -799,7 +799,10 @@ public class View extends ReceiverAdapter implements RequestHandler{
                     loop = specificProductScreen(specificProduct);
                 }
             }
-        } while(!option.equals(ACCEPT_CHAR) && !option.equals(DECLINE_CHAR) && !productIndexExist || loop.equals(CONTINUE_LOOP));
+            else if(option.equals(DECLINE_CHAR)){
+                break;
+            }
+        } while((!option.equals(ACCEPT_CHAR) || !option.equals(DECLINE_CHAR)) && !productIndexExist || loop.equals(CONTINUE_LOOP));
     }
     
 
@@ -877,7 +880,7 @@ public class View extends ReceiverAdapter implements RequestHandler{
             }
             question = option;
             content.add(question);
-        } while(!option.equals(EMPTY_STRING));
+        } while(option.equals(EMPTY_STRING));
         int attempts = 0;
         String loop = CONTINUE_LOOP;
         Comunication newComunication = new Comunication(EnumChannel.VIEW_TO_CONTROL, EnumServices.MAKE_QUESTION, content);

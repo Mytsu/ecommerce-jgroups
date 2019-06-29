@@ -267,9 +267,10 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
     	Question question = new Question(msg, customer);
     	
     	content = null; content = new ArrayList<Object>();
-    	content.add(product);
-    	content.add(question); 	
     	
+    	content.add(question); 	
+        content.add(product);
+        
         comunication = null;
     	comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.SAVE_QUESTION, content);   
     	
