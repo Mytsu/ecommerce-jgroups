@@ -54,6 +54,7 @@ public enum EnumServices {
 	CONFIRM_LOGIN_CUSTOMER,
 	CONFIRM_LOGIN_SELLER,
 	
+	
 	// Servicos de pergunta
 	QUESTION_EXIST,	
 	SAVE_QUESTION,
@@ -63,6 +64,7 @@ public enum EnumServices {
 	NEW_VIEW_MEMBER,
 	NEW_CONTROL_MEMBER,
 	NEW_MODEL_MEMBER,
+	TRANSFER_STATE,
 	
 	//Servicos do sistema
 	TOTAL_FUNDS_BOOL,

@@ -13,6 +13,8 @@ import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestHandler;
 import org.jgroups.blocks.RequestOptions;
 import org.jgroups.blocks.ResponseMode;
+import org.jgroups.util.Rsp;
+import org.jgroups.util.RspList;
 
 import system.*;
 
@@ -61,19 +63,34 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         
         // Informa para todos os membros do controle que há um novo modelo no pedaço e não anota nenhum endereço
     	RequestOptions options = new RequestOptions();
-        options.setMode(ResponseMode.GET_NONE);
-        options.setAnycasting(false);
+        options.setMode(ResponseMode.GET_ALL);
+		options.setAnycasting(false);
         
         Comunication comunication = new Comunication(EnumChannel.MODEL_TO_CONTROL, EnumServices.NEW_MODEL_MEMBER, null);
         Address cluster = null;
         Message newMessage = new Message(cluster, comunication);
-        
+		
+		RspList<Comunication> list = null;
         try {
-			this.control_modelDispatcher.castMessage(null, newMessage, options);
+			list = this.control_modelDispatcher.castMessage(null, newMessage, options);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		// content.add(this.sellers);
+		// content.add(this.products);
+		// content.add(this.customers);
+		
+		System.out.println(list);
+		for(Rsp<Comunication> x : list) {
+			if(x.getValue()!=null && x.getValue().channel == EnumChannel.MODEL_TO_MODEL && x.getSender().equals(this.control_modelChannel.getAddress())){
+				this.sellers.set_sellers((List<Seller>)x.getValue().content.get(0));
+				this.products.set_products((List<Product>)x.getValue().content.get(1));
+				this.customers.set_customers((List<Customer>)x.getValue().content.get(2));
+				break;
+			}
+        }
         
     	return;
     }
@@ -452,10 +469,14 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     		//a mensagem vai acabar chegando para membros do modelo que meio que ignoram a mesma
     		if(msg.service == EnumServices.NEW_MODEL_MEMBER) {
     			response.channel = EnumChannel.MODEL_TO_MODEL;
-    			response.service = EnumServices.NEW_MODEL_MEMBER;
-    			response.content = null;
-    		}
-    	}		
+				response.service = EnumServices.TRANSFER_STATE;
+
+				content.add(this.sellers.get_sellers());
+				content.add(this.products.get_products());
+				content.add(this.customers.get_customers());
+			}
+			response.content = content;
+		}		
 			  
 		System.out.println("Resposta do modelo\n"+response+"\n\n");
         

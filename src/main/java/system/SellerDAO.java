@@ -52,6 +52,10 @@ public class SellerDAO implements Serializable {
         return this.sellers;
     }
 
+    public void set_sellers(List<Seller> sellers){
+        this.sellers = sellers;
+    }
+
     public boolean exists(String id) {
         for (Seller s: this.sellers) {
             if (s.id.equals(id)) {

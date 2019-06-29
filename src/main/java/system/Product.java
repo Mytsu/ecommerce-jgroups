@@ -31,8 +31,9 @@ public class Product implements Serializable {
     		this.offers.put(offer.id, offer);
             this.count += offer.get_amount();
             return ;
+            
     	}
-        
+        System.out.println("Print fora do if");
         this.count += offer.amount;
         this.offers.get(offer.id).price = offer.price;
     	this.offers.get(offer.id).amount += offer.amount;

@@ -1,0 +1,13 @@
+{
+  "filecontroller": {},
+  "sellers": [
+    {
+      "products": {},
+      "id": "vend",
+      "fullname": "v",
+      "password": "1234",
+      "sell": [],
+      "funds": 1000.0
+    }
+  ]
+}

@@ -44,6 +44,10 @@ public class ProductDAO implements Serializable {
         return this.products;
     }
 
+    public void set_products(List<Product> products){
+        this.products = products;
+    }
+
     public boolean exists(String id) {
         for (Product p: products) {
             if(p.id.equals(id)) {

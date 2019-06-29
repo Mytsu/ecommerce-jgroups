@@ -57,6 +57,10 @@ public class CustomerDAO implements Serializable {
         return this.customers;
     }
 
+    public void set_customers(List<Customer> customers) {
+        this.customers = customers;
+    }
+
     public boolean exists(String id) {
         for (Customer c : this.customers) {
             if (c.id.equals(id)) {
