@@ -61,6 +61,20 @@ public class ProductDAO implements Serializable {
         this.products.put(product.id, product);        
     }
 
+        
+    public void add_customer(Product product) {
+        JSONObject prod = new JSONObject();
+        JSONObject questions = new JSONObject();
+        JSONObject offers = new JSONObject();
+        
+        offers.putAll(product.getOffers());
+        questions.putAll(product.getQuestions());
+
+        prod.put("offers", offers);
+        prod.put("questions", questions);
+        this.products.put(product.id, prod);
+    }
+
     public Product get_product(String product) {
         return (Product) this.products.get(product);
     }
