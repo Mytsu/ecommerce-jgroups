@@ -27,13 +27,14 @@ public class Product implements Serializable {
     public void add_offer(Offer offer) {
         // CRIAR SE JA EXISTE OFERTA
         // ATUALIZAR PRECO E ADICIONAR A QUANTIDADE
-    	if(offers.containsKey(offer.id)) {
+    	if(!offers.containsKey(offer.id)) {
     		this.offers.put(offer.id, offer);
             this.count += offer.get_amount();
             return ;
     	}
-    	
-    	this.offers.get(offer.id).price = offer.price;
+        
+        this.count += offer.amount;
+        this.offers.get(offer.id).price = offer.price;
     	this.offers.get(offer.id).amount += offer.amount;
     	
     	return ;        

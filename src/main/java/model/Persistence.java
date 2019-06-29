@@ -145,14 +145,20 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     
     private boolean add_product(String idSeller, String product, Float price, long amount, String description) {
        
-    	// Verifica se o produto nao esta no hashmap
+		// Verifica se o produto nao esta no hashmap
+		Product novoProdoto = new Product(product, description);
         if(!this.products.exists(product))
-            products.add_product(new Product(product, description));
+            products.add_product(novoProdoto);
 
         //Decidir se vai incrementar caso o produto e o vendedor ja exista
-        //Ou se simplesmente vai criar uma nova oferta
-        products.get_product(product).add_offer(new Offer(idSeller, price, amount));
-    	
+		//Ou se simplesmente vai criar uma nova oferta
+
+		Offer novaOferta = new Offer(idSeller, price, amount);
+		products.get_product(product).add_offer(novaOferta);
+		
+		novoProdoto.add_offer(novaOferta);
+		this.sellers.get_seller(idSeller).products.put(product, novoProdoto);
+		
         return true;
     }
     
@@ -209,7 +215,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         double price = this.products.get_product(product).get_price(seller);
 
         // Verifica se o cliente tem dinheiro o suficiente para comprar
-        if(! (price > this.customers.get_customer(customer).get_funds())) {
+        if(price > this.customers.get_customer(customer).get_funds()) {
             return -6;
         }
         

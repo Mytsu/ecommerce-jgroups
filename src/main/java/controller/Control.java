@@ -128,8 +128,6 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         content.add(id);
         Comunication comunication = new Comunication(EnumChannel.CONTROL_TO_MODEL, EnumServices.CUSTOMER_EXIST, content);
         comunication = this.sendMessageModelAny(comunication);
-        
-        System.out.println((boolean)comunication.content.get(0));
 
         if((boolean)comunication.content.get(0) == true) {
         	return false;
@@ -150,18 +148,14 @@ public class Control extends ReceiverAdapter implements RequestHandler, Serializ
         
         //	TODO  Abaixo falta colocar em um laço de acordo para todos os modelos falarem que escreveu que
         //o cliente foi adicionado com o sucesso.
-        System.out.println("Passei 1");
         RspList<Comunication> responses = this.sendMessageModelAll(comunication2);
         //Comunication responses = this.sendMessageModelAny(comunication);
         //this.customers.add_customer(customer); OLD
-        System.out.println("Passei 2");
         boolean bool = true;
         
         for (Rsp<Comunication> rsp : responses) {
 			bool = bool & (boolean)rsp.getValue().content.get(0);
 		}
-        System.out.println("Passei 3");
-        System.out.println(bool);
 
         return bool;
     }
