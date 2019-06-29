@@ -258,7 +258,6 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
     	return this.sellers.get_seller(seller).sell;
 	}
 	
-	@SuppressWarnings("unchecked")
     private HashMap<String, Product> getSellerItens(String seller){
         return (HashMap<String, Product>)this.sellers.get_seller(seller).products;
     }
