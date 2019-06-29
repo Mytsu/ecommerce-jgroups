@@ -1,92 +1,64 @@
 package system;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.Reader;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
-@SuppressWarnings("unchecked")
 public class SellerDAO implements Serializable {
 
     private static final long serialVersionUID = 4506509784967298618L;
     private static final String FILENAME = "sellers.json";
 
-    private JSONObject data;
-    private JSONObject sellers;
+    private Json filecontroller;
+
+    private List<Seller> sellers;
 
     public SellerDAO() {
+        this.filecontroller = new Json();
+        this.sellers = new ArrayList<Seller>();
         this.loadFile();
     }
 
     private void loadFile() {
-        JSONParser parser = new JSONParser();
-        try(Reader reader = new FileReader(FILENAME)) {
-            this.data = (JSONObject) parser.parse(reader);
-            this.sellers = (JSONObject) this.data.get("sellers");
-        } catch(Exception e) {
-            this.data = new JSONObject();
-            this.sellers = new JSONObject();
-
-            /*
-            System.err.println("Não foi possível ler arquivo '" + FILENAME + "'");
-            e.printStackTrace();
-            */
-            // TODO handle loadFile error
-        }
+        this.filecontroller.readJson(FILENAME, sellers.getClass());        
     }
 
     public synchronized void saveFile() {
-        try(FileWriter file = new FileWriter(FILENAME);) {
-            if (!this.data.containsKey("type") || this.data.containsKey("createdAt")) {
-                this.data.put("type", "sellers");
-                this.data.put("createdAt", new Date().toString());
-            }
-            this.data.put("sellers", this.sellers);
-            file.write(data.toJSONString());            
-        } catch(Exception e) {
-            this.data = new JSONObject();
-            this.sellers = new JSONObject();
-            /*
-            System.err.println("Não foi possível escrever arquivo '" + FILENAME + "'");
-            e.printStackTrace();
-            */
-            // TODO handle saveFile error
-        }
-
+        this.filecontroller.writeJson(this, FILENAME);
     }
 
     public void add_funds(double funds, String sellerId) {
-        Seller seller = (Seller) this.sellers.get(sellerId);
-        seller.add_funds(funds);
-        this.sellers.replace(sellerId, seller);
+        for (Seller s : this.sellers) {
+            if (s.id.equals(sellerId)) {
+                s.funds += funds;
+            }
+        }
     }
-
+        
     public void add_seller(Seller seller) {
-        this.sellers.put(seller.id, seller);
+        this.sellers.add(seller);
     }
 
     public Seller get_seller(String seller) {
-        return (Seller) this.sellers.get(seller);
+        for (Seller s: this.sellers) {
+            if (s.id.equals(seller)) {
+                return s;
+            }
+        }
+        return null;
     }
 
     public List<Seller> get_sellers() {
-        Iterator<String> keys = this.sellers.keySet().iterator();
-        List<Seller> out = new ArrayList<Seller>();
-        while (keys.hasNext()) {
-            out.add((Seller) this.sellers.get(keys.next()));
-        }
-        return out;
+        return this.sellers;
     }
 
     public boolean exists(String id) {
-        return this.sellers.containsKey(id);
+        for (Seller s: this.sellers) {
+            if (s.id.equals(id)) {
+                return true;
+            }
+        }
+        return false;
     }
     
 }

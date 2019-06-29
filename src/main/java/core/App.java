@@ -22,7 +22,7 @@ public class App {
         }
         catch (Exception e) {
             // do nothing
-        	System.out.println("Um print");
+        	e.printStackTrace();
         }
     }
 }

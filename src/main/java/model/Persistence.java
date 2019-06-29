@@ -48,12 +48,6 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         // Tive que colocar o throws para nao ter que dar try catch abaixo
         this.control_modelChannel.connect("ControlModelChannel");
 		this.montaGrupo();
-
-		// Salva os arquivos em um intervalo determinado
-		while(true) {
-			this.saveFiles();
-			wait(SAVE_INTERVAL);
-		}
 	}
 
 	private void saveFiles() {
@@ -134,12 +128,14 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
 	}
     
     private boolean addCustomer(Customer customer) {
-    	this.customers.add_customer(customer);
+		this.customers.add_customer(customer);
+		this.saveFiles();
     	return true;
     }
     
     private boolean addSeller(Seller seller) {
-    	this.sellers.add_seller(seller);
+		this.sellers.add_seller(seller);
+		this.saveFiles();
     	return true;
     }
     
@@ -158,7 +154,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
 		
 		novoProdoto.add_offer(novaOferta);
 		this.sellers.get_seller(idSeller).products.put(product, novoProdoto);
-		
+		this.saveFiles();
         return true;
     }
     
@@ -236,12 +232,13 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
         Sell sell = new Sell(seller, customer, product, price, amount);
         this.customers.get_customer(customer).add_sell(sell);
         this.sellers.get_seller(seller).add_sell(sell);
-        
+        this.saveFiles();
         return true;
     }
     
     private boolean saveQuestion(Question question, String product) {
-        products.get_product(product).add_question(question);
+		products.get_product(product).add_question(question);
+		this.saveFiles();
     	return true;
     }
 	
@@ -249,7 +246,7 @@ public class Persistence extends ReceiverAdapter implements RequestHandler, Seri
 		
 		Answer answer2 = new Answer(seller, answer);
 		this.products.get_product(product).questions.get(question).add_answer(answer2);
-		
+		this.saveFiles();
 		return true;
 	}
 		
