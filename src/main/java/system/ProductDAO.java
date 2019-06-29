@@ -1,6 +1,7 @@
 package system;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductDAO implements Serializable {
@@ -14,6 +15,7 @@ public class ProductDAO implements Serializable {
 
     public ProductDAO() {
         this.filecontroller = new Json();
+        products = new ArrayList<Product>();
         this.loadFile();
     }
 

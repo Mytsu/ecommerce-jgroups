@@ -66,13 +66,12 @@ public class Json {
 
         T dao;
         FileReader arqr;
-        BufferedReader lerArq;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         try {
             arqr = new FileReader(dir);
 
-            dao = gson.fromJson(dir, type);
+            dao = gson.fromJson(arqr, type);
 
             arqr.close();
             return dao;

@@ -1,6 +1,7 @@
 package system;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CustomerDAO implements Serializable {
@@ -19,6 +20,7 @@ public class CustomerDAO implements Serializable {
     public CustomerDAO() {
         // this.customers = new HashMap<String, Customer>();
         this.filecontroller = new Json();
+        customers = new ArrayList<Customer>();
         this.loadFile();
     }
 
